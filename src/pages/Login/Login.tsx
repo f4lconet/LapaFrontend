@@ -3,9 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import {
   Box,
   Typography,
-  Paper,
   Container,
-  Divider,
   Link as MuiLink,
 } from '@mui/material'
 import { useAuthPresenter } from '../../presenters/useAuthPresenter'
