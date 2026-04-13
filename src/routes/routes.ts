@@ -1,24 +1,13 @@
 export const ROUTES = {
   // Публичные маршруты
   FEED: '/',
-
   // Аутентификация
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
+  LOGIN: '/login',
+  REGISTER: '/register',
+  PROFILE: '/profile',
+  PUBLIC_PROFILE: (userId: string) => `/profile/${userId}`,
+  ANIMALS: '/animals',
+  MYTASKS: '/mytasks',
+  TASKSFEED: '/taskfeed',
+  ORGANIZATIONS: '/organizations'
 } as const
-
-// Группы маршрутов для проверок
-export const PUBLIC_ROUTES = [
-  ROUTES.FEED,
-
-  ROUTES.LOGIN,
-  ROUTES.REGISTER,
-]
-
-export const PROTECTED_ROUTES = [
-
-]
-
-export const ADMIN_ROUTES = [
-
-]

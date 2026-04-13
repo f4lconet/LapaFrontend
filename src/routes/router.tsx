@@ -2,11 +2,18 @@ import { createBrowserRouter } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 
 import { AuthLayout } from '../layouts/AuthLayout'
+import { ProfileLayout } from '../layouts/ProfileLayout'
+import { ROUTES } from './routes'
 
 // Ленивая загрузка страниц
 const Feed = lazy(() => import('../pages/Feed/Feed'))
 const Login = lazy(() => import('../pages/Login/Login'))
 const Register = lazy(() => import('../pages/Register/Register'))
+const Profile = lazy(() => import('../pages/Profile/Profile'))
+const Animals = lazy(() => import('../pages/Animals/Animals'))
+const MyTasks = lazy(() => import('../pages/MyTasks/MyTasks'))
+const TasksFeed = lazy(() => import('../pages/TasksFeed/TasksFeed'))
+const Organizations = lazy(() => import('../pages/Organizations/Organizations'))
 
 // Обёртка для lazy loading
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>) => (
@@ -19,7 +26,7 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>)
 export const router = createBrowserRouter([
   // Публичные маршруты с основным лейаутом
   {
-    path: '/',
+    path: ROUTES.FEED,
     // element: <MainLayout />,
     children: [
       { index: true, element: withSuspense(Feed) },
@@ -32,11 +39,25 @@ export const router = createBrowserRouter([
     // element: <PublicRoute />,
     children: [
       {
-        path: '/auth',
         element: <AuthLayout />,
         children: [
-          { path: 'login', element: withSuspense(Login) },
-          { path: 'register', element: withSuspense(Register) },
+          { path: ROUTES.LOGIN, element: withSuspense(Login) },
+          { path: ROUTES.REGISTER, element: withSuspense(Register) },
+        ],
+      },
+    ],
+  },
+
+  {
+    element: <ProfileLayout />,
+    children: [
+      {
+        children: [
+          { path: ROUTES.PROFILE, element: withSuspense(Profile) },
+          { path: ROUTES.ANIMALS, element: withSuspense(Animals) },
+          { path: ROUTES.MYTASKS, element: withSuspense(MyTasks) },
+          { path: ROUTES.TASKSFEED, element: withSuspense(TasksFeed) },
+          { path: ROUTES.ORGANIZATIONS, element: withSuspense(Organizations) },
         ],
       },
     ],

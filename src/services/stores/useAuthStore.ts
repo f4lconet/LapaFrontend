@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { authService } from '../api/auth.service'
 import type { 
-  User, 
   RegisterRequest, 
   RegisterResponse,
   LoginRequest,
@@ -95,10 +94,13 @@ export const useAuthStore = create<AuthStore>()(
         
         try {
           const response = await authService.login(data)
+
           localStorage.setItem('accessToken', response.accessToken)
           if (response.refreshToken) {
             localStorage.setItem('refreshToken', response.refreshToken)
           }
+
+          await new Promise(resolve => setTimeout(resolve, 100))
 
           const user = await authService.getCurrentUser()
 

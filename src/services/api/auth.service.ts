@@ -33,19 +33,13 @@ export const authService = {
 
         // Получение текущего пользователя
     async getCurrentUser(): Promise<User> {
-        const response = await apiClient.get<User>('/users/me')
+        const response = await apiClient.get('/users/me')
         return response.data
     },
 
     // Выход
     async logout(): Promise<void> {
         await apiClient.post('/auth/sign_out')
-    },
-
-    // Обновление профиля
-    async updateProfile(data: Partial<User>): Promise<User> {
-        const response = await apiClient.patch<User>('/users/me', data)
-        return response.data
     },
 
     // // Обновление токена

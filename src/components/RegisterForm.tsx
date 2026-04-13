@@ -17,7 +17,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material'
 
 // Схема валидации
 const registerSchema = z.object({
-  email: z.string().email('Введите корректный email').min(1, 'Email обязателен'),
+  email: z.email('Введите корректный email').min(1, 'Email обязателен'),
   password: z
     .string()
     .min(8, 'Пароль должен содержать минимум 8 символов')
@@ -28,7 +28,7 @@ const registerSchema = z.object({
       /[!@#$%^&*()_+\-=[\]{};':"\\|<>?,./`~]/,
       'Пароль должен содержать хотя бы один специальный символ'
     ),
-  role: z.enum(['user', 'volunteer', 'curator', 'admin']),
+  role: z.enum(['user', 'volunteer', 'curator', 'organization']),
   name: z.string().min(2, 'Должно быть не менее 2 символов').max(50, 'Должно быть не более 50 символов'),
   confirmPassword: z.string().min(1, 'Подтвердите пароль'),
 }).refine(data => data.password === data.confirmPassword, {
@@ -43,7 +43,7 @@ const roles = [
   { value: 'user', label: 'Пользователь' },
   { value: 'volunteer', label: 'Волонтёр' },
   { value: 'curator', label: 'Куратор' },
-  { value: 'admin', label: 'Администратор' },
+  { value: 'organization', label: 'Организация' },
 ]
 
 interface RegisterFormProps {

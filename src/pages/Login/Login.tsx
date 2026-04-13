@@ -16,20 +16,20 @@ export const Login = () => {
   
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(ROUTES.FEED, { replace: true })
+      navigate(ROUTES.PROFILE, { replace: true })
     }
   }, [isAuthenticated, navigate])
   
   const handleSubmit = async (data: { email: string; password: string }) => {
     const result = await login(data)
     if (result.success) {
-      navigate(ROUTES.FEED, { replace: true })
+      navigate(ROUTES.PROFILE, { replace: true })
     }
   }
   
   return (
     <Container maxWidth="sm">
-      <Box textAlign="center" mb={4}>
+      <Box sx={{textAlign:"center", mb:4}}>
         <Typography
           variant="h4"
           component="h1"
@@ -53,7 +53,7 @@ export const Login = () => {
         onClearError={clearError}
       />
       
-      <Box textAlign="center" sx={{marginTop: '10px'}}>
+      <Box sx={{textAlign:"center", marginTop: '10px'}}>
         <MuiLink component={Link} to={ROUTES.REGISTER}
           sx={{
               fontWeight: 700,
