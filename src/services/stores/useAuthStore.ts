@@ -24,6 +24,7 @@ export const useAuthStore = create<AuthStore>()(
       // Initial state
       user: null,
       isAuthenticated: false,
+      isInitializing: true,
       isLoading: false,
       error: null,
       registrationMessage: null,
@@ -107,6 +108,7 @@ export const useAuthStore = create<AuthStore>()(
           set({
             user,
             isAuthenticated: response.isActive,
+            isInitializing: false,
             isLoading: false,
             error: null,
           })
@@ -123,12 +125,18 @@ export const useAuthStore = create<AuthStore>()(
       // Выход
       logout: async () => {
         set({ isLoading: true })
-        await authService.logout()
+        try {
+          await authService.logout()
+        } catch {
+          // ignore logout errors, still clear client state
+        }
+
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
         set({
           user: null,
           isAuthenticated: false,
+          isInitializing: false,
           isLoading: false,
           error: null,
           registrationMessage: null,
@@ -137,23 +145,56 @@ export const useAuthStore = create<AuthStore>()(
       
       // Проверка авторизации
       checkAuth: async () => {
-        const token = localStorage.getItem('accessToken')
-        if (!token) return
-        
         set({ isLoading: true })
+        const token = localStorage.getItem('accessToken')
+        const refreshToken = localStorage.getItem('refreshToken')
+
+        if (!token && !refreshToken) {
+          set({
+            user: null,
+            isAuthenticated: false,
+            isInitializing: false,
+            isLoading: false,
+          })
+          return
+        }
+
         try {
           const user = await authService.getCurrentUser()
           set({
             user,
             isAuthenticated: true,
+            isInitializing: false,
             isLoading: false,
           })
-        } catch (error) {
+          return
+        } catch {
+          if (refreshToken) {
+            try {
+              const refreshResponse = await authService.refreshToken(refreshToken)
+              localStorage.setItem('accessToken', refreshResponse.accessToken)
+              if (refreshResponse.refreshToken) {
+                localStorage.setItem('refreshToken', refreshResponse.refreshToken)
+              }
+              const user = await authService.getCurrentUser()
+              set({
+                user,
+                isAuthenticated: true,
+                isInitializing: false,
+                isLoading: false,
+              })
+              return
+            } catch {
+              // refresh failed, fall through to logout state
+            }
+          }
+
           localStorage.removeItem('accessToken')
           localStorage.removeItem('refreshToken')
           set({
             user: null,
             isAuthenticated: false,
+            isInitializing: false,
             isLoading: false,
           })
         }
@@ -169,7 +210,6 @@ export const useAuthStore = create<AuthStore>()(
       name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated,
       }),
     }
   )

@@ -18,7 +18,7 @@ interface UserStore {
   volunteerStats: VolunteerStats | null;
   
   getProfile: () => Promise<void>
-//   fetchPublicProfile: (userId: string) => Promise<User | null>
+  fetchPublicProfile: (userId: string) => Promise<void>
   updateProfile: (data: UpdateProfileRequest) => Promise<void>
   deleteProfile: () => Promise<void>
   uploadAvatar: (file: File) => Promise<string>
@@ -30,7 +30,9 @@ interface UserStore {
   addAnimal: (data: CreateAnimalRequest) => Promise<void>;
   deleteAnimal: (animalId: string) => Promise<void>;
   clearVolunteerData: () => void; // для выхода из профиля
+  updateCompetencies: () => Promise<void>; // обновление компетенций после редактирования
 }
+
 
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -54,22 +56,22 @@ export const useUserStore = create<UserStore>((set, get) => ({
     }
   },
   
-//   fetchPublicProfile: async (userId: string) => {
-//     set({ isLoading: true, error: null })
-//     try {
-//       const user = await userService.getProfileById(userId)
-//       set({ isLoading: false })
-//       return user
-//     } catch (error: any) {
-//       set({ error: error.response?.data?.message || 'Пользователь не найден', isLoading: false })
-//       return null
-//     }
-//   },
+  fetchPublicProfile: async (userId: string) => {
+    set({ isLoading: true, error: null })
+    try {
+      const user = await userService.getProfileById(userId)
+      set({ user, isLoading: false })
+    } catch (error: any) {
+      set({ error: error.response?.data?.message || 'Пользователь не найден', isLoading: false })
+    }
+  },
   
   updateProfile: async (data: UpdateProfileRequest) => {
     set({ isLoading: true, error: null })
     try {
-      const updatedUser = await userService.updateMyProfile(data)
+      await userService.updateMyProfile(data)
+      // Перезагружаем профиль, чтобы получить актуальные данные
+      const updatedUser = await userService.getMyProfile()
       set({ user: updatedUser, isLoading: false, isEditing: false })
     } catch (error: any) {
       set({ error: error.response?.data?.message || 'Ошибка обновления профиля', isLoading: false })
@@ -80,7 +82,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   deleteProfile: async () => {
     set({ isLoading: true, error: null })
     try {
-      const user = await userService.deleteMyProfile()
+      await userService.deleteMyProfile()
       set({ isLoading: false })
     } catch (error: any) {
       set({ error: error.response?.data?.message || 'Ошибка удаления профиля', isLoading: false })
@@ -169,5 +171,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   clearVolunteerData: () => {
     set({ skills: [], preferences: [], competencies: null, myAnimals: [], volunteerStats: null });
+  },
+
+  updateCompetencies: async () => {
+    try {
+      const competencies = await volunteerService.getMyCompetencies();
+      set({ competencies });
+    } catch (error: any) {
+      set({ error: error.response?.data?.message || 'Ошибка обновления компетенций' });
+    }
   }
 }))

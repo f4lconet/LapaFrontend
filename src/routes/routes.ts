@@ -9,5 +9,7 @@ export const ROUTES = {
   ANIMALS: '/animals',
   MYTASKS: '/mytasks',
   TASKSFEED: '/taskfeed',
-  ORGANIZATIONS: '/organizations'
+  ORGANIZATIONS: '/organizations',
+  CALENDAR: '/calendar',
+  CHAT: '/chat',
 } as const

@@ -19,17 +19,18 @@ const Register = () => {
     isLoading, 
     error, 
     registrationMessage,
-    isAuthenticated, 
+    isAuthenticated,
+    isInitializing,
     clearError,
     clearRegistrationMessage,
   } = useAuthPresenter()
   
   // Если уже авторизован, перенаправляем на главную
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isInitializing && isAuthenticated) {
       navigate(ROUTES.FEED, { replace: true })
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, isInitializing, navigate])
   
   const handleSubmit = async (data: {
     email: string
@@ -57,7 +58,7 @@ const Register = () => {
   
   return (
     <Container maxWidth="sm">
-      <Box textAlign="center" mb={4}>
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
         <Typography
           variant="h4"
           component="h1"
@@ -92,7 +93,7 @@ const Register = () => {
         onClearError={handleClearError}
       />
       
-      <Box textAlign="center" sx={{marginTop: '10px'}}>
+      <Box sx={{ textAlign: 'center', marginTop: '10px' }}>
         <MuiLink component={Link} to={ROUTES.LOGIN}
           sx={{
             fontWeight: 700,

@@ -65,6 +65,12 @@ export const EditProfileDialog = ({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleSwitchChange = (field: keyof UpdateProfileRequest) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.checked }));
+  };
+
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -177,7 +183,7 @@ export const EditProfileDialog = ({
             control={
               <Switch
                 checked={formData.isUrgentAvailable || false}
-                onChange={handleChange('isUrgentAvailable')}
+                onChange={handleSwitchChange('isUrgentAvailable')}
               />
             }
             label="Готов помогать в срочных ситуациях"

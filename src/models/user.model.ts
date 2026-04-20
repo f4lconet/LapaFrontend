@@ -58,10 +58,17 @@ export interface LoginResponse {
     isActive: boolean
 }
 
+export interface RefreshTokenResponse {
+    accessToken: string
+    refreshToken?: string
+    tokenType: "bearer"
+}
+
 // Состояние авторизации
 export interface AuthState {
   user: User | null
   isAuthenticated: boolean
+  isInitializing: boolean
   isLoading: boolean
   error: string | null
   registrationMessage: string | null

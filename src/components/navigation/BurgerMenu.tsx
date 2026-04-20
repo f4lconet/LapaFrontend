@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { IconButton, Drawer, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography } from '@mui/material'
-import { Home as HomeIcon, Person as PersonIcon, Share as ShareIcon, Logout as LogoutIcon, Task, Pets, Feed, Work } from '@mui/icons-material'
+import { Home as HomeIcon, Person as PersonIcon, Share as ShareIcon, Logout as LogoutIcon, Task, Pets, Feed, Work, CalendarMonth, Chat } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ROUTES } from '../../routes/routes'
 import OpenDrawerIcon from '../../assets/images/drawer-open-button.svg?react'
@@ -24,6 +24,8 @@ const navItems: NavItem[] = [
   { path: ROUTES.MYTASKS, label: 'Мои задачи', icon: <Task /> },
   { path: ROUTES.TASKSFEED, label: 'Лента задач', icon: <Feed /> },
   { path: ROUTES.ORGANIZATIONS, label: 'Организации', icon: <Work /> },
+  { path: ROUTES.CALENDAR, label: 'Календарь', icon: <CalendarMonth/> },
+  { path: ROUTES.CHAT, label: 'Чаты', icon: <Chat/> },
 ]
 
 export const BurgerMenu = ({ onShare, onLogout }: BurgerMenuProps) => {
@@ -104,7 +106,7 @@ export const BurgerMenu = ({ onShare, onLogout }: BurgerMenuProps) => {
           paper: {
             sx: {
               width: 321,
-              height: 603,
+              height: 620,
               top: 0,
               right: 0,
               bottom: 'auto',

@@ -19,11 +19,9 @@ const Profile = () => {
     volunteerStats,
     updateProfile,
     uploadAvatar,
-    deleteProfile,
-    setEditing,
-    clearError,
     addAnimal,
     deleteAnimal,
+    updateCompetencies,
   } = useUserPresenter();
 
   const handleLogout = async () => {
@@ -71,6 +69,7 @@ const Profile = () => {
         myAnimals={myAnimals}
         onUpdate={updateProfile}
         onUploadAvatar={uploadAvatar}
+        onCompetenciesUpdate={updateCompetencies}
         // onCancel={() => setEditing(false)}
         onAddAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? addAnimal : undefined}
         onDeleteAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? deleteAnimal : undefined}

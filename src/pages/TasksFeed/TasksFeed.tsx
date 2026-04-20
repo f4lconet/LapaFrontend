@@ -1,80 +1,174 @@
-import { Container, Typography, Box, Stack, Paper, Chip, Button, Card, CardContent, CardActions, Grid } from '@mui/material';
-import { Assignment, LocationOn, Schedule, Person, Flag, CheckCircle } from '@mui/icons-material';
+import { useState, useEffect, useRef } from 'react';
+import {
+  Container,
+  Typography,
+  Box,
+  Stack,
+  Paper,
+  TextField,
+  CircularProgress,
+  Alert,
+  Checkbox,
+  FormControlLabel,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@mui/material';
+import { Search, ExpandMore, TrendingUp } from '@mui/icons-material';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
-
-// Временные типы для задач (пока без сервисов)
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  date: string;
-  time: string;
-  organization: string;
-  organizationId: string;
-  status: 'active' | 'completed';
-  priority: 'high' | 'medium' | 'low';
-}
-
-// Временные данные для демонстрации
-const mockTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Помощь в приюте для собак',
-    description: 'Нужна помощь в выгуле собак и уборке вольеров. Приветствуется опыт общения с животными.',
-    location: 'Москва, ул. Ленина 15',
-    date: '15 апреля 2026',
-    time: '10:00 - 14:00',
-    organization: 'Приют "Доброе сердце"',
-    organizationId: 'org1',
-    status: 'active',
-    priority: 'high',
-  },
-  {
-    id: '2',
-    title: 'Сбор корма для кошек',
-    description: 'Помогите собрать корм для бездомных кошек. Требуются волонтеры для организации сбора.',
-    location: 'Санкт-Петербург, Невский пр. 25',
-    date: '18 апреля 2026',
-    time: '12:00 - 16:00',
-    organization: 'Кошкин дом',
-    organizationId: 'org2',
-    status: 'active',
-    priority: 'medium',
-  },
-  
-];
+import { TaskCard } from '../../components/tasks/TaskCard';
+import { useTaskStore } from '../../services/stores/useTaskStore';
+import { useUserPresenter } from '../../presenters/useUserPresenter';
 
 const TasksFeedPage = () => {
-  const handleTakeTask = (taskId: string) => {
-    // TODO: добавить логику взятия задачи
-    console.log('Take task:', taskId);
-  };
+  const { user } = useUserPresenter();
+  const {
+    tasks,
+    recommendedTasks,
+    isLoading,
+    error,
+    totalTasks,
+    totalRecommended,
+    fetchTasks,
+    fetchRecommendedTasks,
+    takeTask,
+    loadMoreTasks,
+    loadMoreRecommended,
+    clearError,
+  } = useTaskStore();
 
-  const getPriorityColor = (priority: Task['priority']) => {
-    switch (priority) {
-      case 'high':
-        return 'error';
-      case 'medium':
-        return 'warning';
-      case 'low':
-        return 'success';
-      default:
-        return 'default';
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showUrgentOnly, setShowUrgentOnly] = useState(false);
+  const [filteredTasks, setFilteredTasks] = useState(tasks);
+  const [filteredRecommended, setFilteredRecommended] = useState(recommendedTasks);
+  const [hasMoreTasks, setHasMoreTasks] = useState(true);
+  const [hasMoreRecommended, setHasMoreRecommended] = useState(true);
+  const observerTarget = useRef<HTMLDivElement>(null);
+  const recommendedTarget = useRef<HTMLDivElement>(null);
+
+  const isVolunteer = user?.role === 'volunteer';
+
+  // Initial load
+  useEffect(() => {
+    fetchTasks();
+    if (isVolunteer) {
+      fetchRecommendedTasks();
+    }
+  }, [isVolunteer, fetchTasks, fetchRecommendedTasks]);
+
+  // Filter tasks based on search and filters
+  useEffect(() => {
+    let filtered = tasks;
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (task) =>
+          task.title.toLowerCase().includes(query) ||
+          task.description.toLowerCase().includes(query) ||
+          task.animal_name.toLowerCase().includes(query)
+      );
+    }
+
+    if (showUrgentOnly) {
+      filtered = filtered.filter((task) => task.is_urgent);
+    }
+
+    setFilteredTasks(filtered);
+  }, [tasks, searchQuery, showUrgentOnly]);
+
+  // Filter recommended tasks
+  useEffect(() => {
+    let filtered = recommendedTasks;
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (task) =>
+          task.title.toLowerCase().includes(query) ||
+          task.description.toLowerCase().includes(query) ||
+          task.animal_name.toLowerCase().includes(query)
+      );
+    }
+
+    if (showUrgentOnly) {
+      filtered = filtered.filter((task) => task.is_urgent);
+    }
+
+    setFilteredRecommended(filtered);
+  }, [recommendedTasks, searchQuery, showUrgentOnly]);
+
+  // Intersection Observer for infinite scroll - regular tasks
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoading && hasMoreTasks && tasks.length > 0) {
+          loadMoreTasks();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [isLoading, hasMoreTasks, tasks.length, loadMoreTasks]);
+
+  // Intersection Observer for recommended tasks
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isLoading &&
+          hasMoreRecommended &&
+          recommendedTasks.length > 0
+        ) {
+          loadMoreRecommended();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (recommendedTarget.current) {
+      observer.observe(recommendedTarget.current);
+    }
+
+    return () => {
+      if (recommendedTarget.current) {
+        observer.unobserve(recommendedTarget.current);
+      }
+    };
+  }, [isLoading, hasMoreRecommended, recommendedTasks.length, loadMoreRecommended]);
+
+  // Check if more tasks available
+  useEffect(() => {
+    setHasMoreTasks(tasks.length < totalTasks);
+  }, [tasks.length, totalTasks]);
+
+  // Check if more recommended available
+  useEffect(() => {
+    setHasMoreRecommended(recommendedTasks.length < totalRecommended);
+  }, [recommendedTasks.length, totalRecommended]);
+
+  const handleTakeTask = async (taskId: string) => {
+    try {
+      await takeTask(taskId);
+      alert('Задача успешно взята!');
+    } catch (err) {
+      // Error is handled by store
     }
   };
 
-  const getPriorityText = (priority: Task['priority']) => {
-    switch (priority) {
-      case 'high':
-        return 'Высокий приоритет';
-      case 'medium':
-        return 'Средний приоритет';
-      case 'low':
-        return 'Низкий приоритет';
-      default:
-        return '';
-    }
+  const handleChat = (taskId: string) => {
+    // TODO: Implement chat redirection
+    console.log('Chat with curator:', taskId);
   };
 
   return (
@@ -87,90 +181,130 @@ const TasksFeedPage = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Лента задач
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Выберите задачу, которую хотите выполнить
+        <Typography variant="body2" color="text.secondary">
+          Найдите и возьмите подходящую для вас задачу
         </Typography>
       </Box>
 
-      {mockTasks.length === 0 ? (
-        <Paper elevation={2} sx={{ p: 6, textAlign: 'center' }}>
-          <Assignment sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-          <Typography variant="h6" color="text.secondary">
-            Задач пока нет
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Задачи появятся здесь, когда организации добавят их
-          </Typography>
-        </Paper>
+      {error && (
+        <Alert severity="error" onClose={clearError} sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Search and Filters */}
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <Stack spacing={2}>
+          <TextField
+            fullWidth
+            placeholder="Поиск по названию, описанию или животному..."
+            slotProps={{
+              input: {
+                startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+              }
+            }}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMore />}>
+              <Typography>Фильтры</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={showUrgentOnly}
+                    onChange={(e) => setShowUrgentOnly(e.target.checked)}
+                  />
+                }
+                label="Только срочные задачи"
+              />
+            </AccordionDetails>
+          </Accordion>
+        </Stack>
+      </Paper>
+
+      {isLoading && filteredTasks.length === 0 ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <CircularProgress />
+        </Box>
       ) : (
-        <Grid container spacing={3}>
-          {mockTasks.map((task) => (
-            <Grid sx={{xs: 12}} key={task.id}>
-              <Card sx={{ 
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: 3,
-                },
-              }}>
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap', gap: 1 }}>
-                    <Typography variant="h6" gutterBottom>
-                      {task.title}
-                    </Typography>
-                    <Chip 
-                      label={getPriorityText(task.priority)} 
-                      color={getPriorityColor(task.priority)} 
-                      size="small"
-                      icon={<Flag />}
+        <>
+          {/* Recommended Tasks for Volunteers */}
+          {isVolunteer && filteredRecommended.length > 0 && (
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <TrendingUp color="primary" />
+                <Typography variant="h6">Рекомендуемые для вас</Typography>
+              </Box>
+
+              <Stack spacing={2} sx={{ mb: 2 }}>
+                {filteredRecommended.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    isVolunteer={true}
+                    onTake={handleTakeTask}
+                    onChat={handleChat}
+                    isLoading={isLoading}
+                  />
+                ))}
+              </Stack>
+
+              {hasMoreRecommended && (
+                <Box ref={recommendedTarget} sx={{ py: 2, textAlign: 'center' }}>
+                  {isLoading && <CircularProgress size={24} />}
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {/* All Tasks */}
+          <Box>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Все задачи {filteredTasks.length > 0 && `(${filteredTasks.length} из ${totalTasks})`}
+            </Typography>
+
+            {filteredTasks.length === 0 ? (
+              <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="body1" color="text.secondary">
+                  {searchQuery || showUrgentOnly
+                    ? 'По вашему запросу не найдено задач'
+                    : 'Задач пока нет'}
+                </Typography>
+              </Paper>
+            ) : (
+              <>
+                <Stack spacing={2}>
+                  {filteredTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      isVolunteer={isVolunteer}
+                      onTake={isVolunteer ? handleTakeTask : undefined}
+                      onChat={isVolunteer ? handleChat : undefined}
+                      isLoading={isLoading}
                     />
+                  ))}
+                </Stack>
+
+                {hasMoreTasks && (
+                  <Box ref={observerTarget} sx={{ py: 4, textAlign: 'center' }}>
+                    {isLoading ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        Прокрутите для загрузки ещё задач...
+                      </Typography>
+                    )}
                   </Box>
-
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {task.description}
-                  </Typography>
-
-                  <Stack spacing={1} sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <LocationOn fontSize="small" color="action" />
-                      <Typography variant="body2">{task.location}</Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Schedule fontSize="small" color="action" />
-                      <Typography variant="body2">{task.date} • {task.time}</Typography>
-                    </Box>
-                    
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Person fontSize="small" color="action" />
-                      <Typography variant="body2">Организатор: {task.organization}</Typography>
-                    </Box>
-                  </Stack>
-
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Chip 
-                      label={task.status === 'active' ? 'Активна' : 'Завершена'} 
-                      size="small" 
-                      color={task.status === 'active' ? 'success' : 'default'}
-                      icon={task.status === 'active' ? <Assignment /> : <CheckCircle />}
-                    />
-                  </Box>
-                </CardContent>
-
-                <CardActions sx={{ px: 2, pb: 2 }}>
-                  <Button 
-                    variant="contained" 
-                    startIcon={<Assignment />}
-                    onClick={() => handleTakeTask(task.id)}
-                    fullWidth
-                  >
-                    Взять задачу
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                )}
+              </>
+            )}
+          </Box>
+        </>
       )}
     </Container>
   );

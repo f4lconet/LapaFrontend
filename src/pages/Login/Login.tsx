@@ -12,13 +12,13 @@ import { ROUTES } from '../../routes/routes'
 
 export const Login = () => {
   const navigate = useNavigate()
-  const { login, isLoading, error, isAuthenticated, clearError } = useAuthPresenter()
+  const { login, isLoading, error, isAuthenticated, isInitializing, clearError } = useAuthPresenter()
   
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isInitializing && isAuthenticated) {
       navigate(ROUTES.PROFILE, { replace: true })
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, isInitializing, navigate])
   
   const handleSubmit = async (data: { email: string; password: string }) => {
     const result = await login(data)

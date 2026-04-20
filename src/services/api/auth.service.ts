@@ -1,6 +1,8 @@
-import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, User } from "../../models/user.model"
+import axios from 'axios'
+import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, RefreshTokenResponse, User } from "../../models/user.model"
 import { apiClient } from "./client"
 
+const API_BASE_URL = import.meta.env.VITE_BASE_URL
 
 export const authService = {
     // Регистрация
@@ -42,12 +44,27 @@ export const authService = {
         await apiClient.post('/auth/sign_out')
     },
 
-    // // Обновление токена
-    // async refreshToken(): Promise<{ accessToken: string }> {
-    //     const refreshToken = localStorage.getItem('refreshToken')
-    //     const response = await apiClient.post<{ accessToken: string }>('/auth/refresh', {
-    //     refreshToken,
-    //     })
-    //     return response.data
-    // },
+    // Обновление токена
+    async refreshToken(refreshToken?: string): Promise<RefreshTokenResponse> {
+        const token = refreshToken || localStorage.getItem('refreshToken')
+        if (!token) {
+            throw new Error('Refresh token is missing')
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refresh_token: token,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+
+        const backendData = response.data
+
+        return {
+            accessToken: backendData.access_token || backendData.accessToken,
+            refreshToken: backendData.refresh_token || backendData.refreshToken,
+            tokenType: backendData.token_type || 'bearer',
+        }
+    },
 }

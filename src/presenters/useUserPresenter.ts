@@ -19,6 +19,7 @@ export const useUserPresenter = () => {
     myAnimals,
     volunteerStats,
     getProfile,
+    fetchPublicProfile,
     updateProfile,
     deleteProfile,
     uploadAvatar,
@@ -30,26 +31,24 @@ export const useUserPresenter = () => {
     addAnimal,
     deleteAnimal,
     clearVolunteerData,
+    updateCompetencies,
   } = useUserStore();
 
   // Определяем, свой ли это профиль
   const isOwnProfile = !userId || currentUser?.id === userId;
-  const profileUserId = isOwnProfile ? currentUser?.id : userId;
 
   // Загрузка профиля
   useEffect(() => {
     if (isOwnProfile) {
       getProfile();
     } else if (userId) {
-      // Здесь должен быть метод для загрузки публичного профиля по userId
-      // fetchPublicProfile(userId);
-      console.warn('Публичный профиль пока не реализован');
+      fetchPublicProfile(userId);
     }
-  }, [isOwnProfile, userId, getProfile]);
+  }, [isOwnProfile, userId, getProfile, fetchPublicProfile]);
 
   // Загрузка дополнительных данных в зависимости от роли
   useEffect(() => {
-    if (user && isOwnProfile) {
+    if (user) {
       if (user.role === 'volunteer') {
         fetchVolunteerData();
         fetchVolunteerStats();
@@ -57,7 +56,7 @@ export const useUserPresenter = () => {
         fetchMyAnimals();
       }
     }
-  }, [user, isOwnProfile, fetchVolunteerData, fetchVolunteerStats, fetchMyAnimals]);
+  }, [user, fetchVolunteerData, fetchVolunteerStats, fetchMyAnimals]);
 
   // Очистка при размонтировании (опционально)
   useEffect(() => {
@@ -106,5 +105,6 @@ export const useUserPresenter = () => {
     clearError,
     addAnimal: handleAddAnimal,
     deleteAnimal: handleDeleteAnimal,
+    updateCompetencies,
   };
 };

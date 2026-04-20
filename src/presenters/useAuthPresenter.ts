@@ -6,6 +6,7 @@ export const useAuthPresenter = () => {
   const {
     user,
     isAuthenticated,
+    isInitializing,
     isLoading,
     error,
     registrationMessage,
@@ -51,6 +52,7 @@ export const useAuthPresenter = () => {
   return {
     user,
     isAuthenticated,
+    isInitializing,
     isLoading,
     error,
     registrationMessage,
