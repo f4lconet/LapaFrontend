@@ -12,4 +12,5 @@ export const ROUTES = {
   ORGANIZATIONS: '/organizations',
   CALENDAR: '/calendar',
   CHAT: '/chat',
+  KNOWLEDGE: '/knowledge',
 } as const

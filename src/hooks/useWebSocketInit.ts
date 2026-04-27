@@ -3,15 +3,12 @@ import { webSocketService } from '../services/websocket.service'
 import { useAuthStore } from '../services/stores/useAuthStore'
 import { useChatStore } from '../services/stores/useChatStore'
 
-/**
- * Hook to initialize WebSocket connection on app startup
- * Should be called once in the main App component
- */
 export const useWebSocketInit = () => {
-  const { user, token } = useAuthStore()
+  const { user } = useAuthStore()
   const { setConnected } = useChatStore()
 
   useEffect(() => {
+    const token = localStorage.getItem('accessToken')
     if (!user || !token) return
 
     // Connect to WebSocket
@@ -48,5 +45,6 @@ export const useWebSocketInit = () => {
     return () => {
       webSocketService.disconnect()
     }
-  }, [user, token, setConnected])
+  }, [user, setConnected])
 }
+

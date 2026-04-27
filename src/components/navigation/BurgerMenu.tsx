@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { IconButton, Drawer, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography } from '@mui/material'
-import { Home as HomeIcon, Person as PersonIcon, Share as ShareIcon, Logout as LogoutIcon, Task, Pets, Feed, Work, CalendarMonth, Chat } from '@mui/icons-material'
+import { Home as HomeIcon, Person as PersonIcon, Share as ShareIcon, Logout as LogoutIcon, Task, Pets, Feed, Work, CalendarMonth, Chat, Book } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ROUTES } from '../../routes/routes'
 import OpenDrawerIcon from '../../assets/images/drawer-open-button.svg?react'
@@ -26,6 +26,7 @@ const navItems: NavItem[] = [
   { path: ROUTES.ORGANIZATIONS, label: 'Организации', icon: <Work /> },
   { path: ROUTES.CALENDAR, label: 'Календарь', icon: <CalendarMonth/> },
   { path: ROUTES.CHAT, label: 'Чаты', icon: <Chat/> },
+  { path: ROUTES.KNOWLEDGE, label: 'База знаний', icon: <Book/>}
 ]
 
 export const BurgerMenu = ({ onShare, onLogout }: BurgerMenuProps) => {
@@ -76,8 +77,7 @@ export const BurgerMenu = ({ onShare, onLogout }: BurgerMenuProps) => {
         sx={{
           width: 48,
           height: 48,
-          bgcolor: 'background.paper',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          
           transition: 'all 0.2s ease',
           '&:hover': {
             bgcolor: 'primary.main',

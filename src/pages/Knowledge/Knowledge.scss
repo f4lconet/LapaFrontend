@@ -1,0 +1,21 @@
+.knowledge-page {
+  padding: 20px !important;
+}
+
+@media (max-width: 768px) {
+  .knowledge-page {
+    padding: 12px !important;
+  }
+  
+  .knowledge-header {
+    height: 300px !important;
+  }
+  
+  .header-content h1 {
+    font-size: 32px !important;
+  }
+  
+  .header-content p {
+    font-size: 14px !important;
+  }
+}

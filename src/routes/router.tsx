@@ -16,6 +16,7 @@ const TasksFeed = lazy(() => import('../pages/TasksFeed/TasksFeed'))
 const Organizations = lazy(() => import('../pages/Organizations/Organizations'))
 const Calendar = lazy(() => import('../pages/Calendar/Calendar'))
 const Chat = lazy(() => import('../pages/Chat/Chat'))
+const Knowledge = lazy(() => import('../pages/Knowledge/Knowledge'))
 
 // Обёртка для lazy loading
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>) => (
@@ -62,6 +63,7 @@ export const router = createBrowserRouter([
           { path: ROUTES.ORGANIZATIONS, element: withSuspense(Organizations) },
           { path: ROUTES.CALENDAR, element: withSuspense(Calendar) },
           { path: ROUTES.CHAT, element: withSuspense(Chat) },
+          { path: ROUTES.KNOWLEDGE, element: withSuspense(Knowledge)},
         ],
       },
     ],

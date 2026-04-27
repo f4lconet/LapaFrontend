@@ -87,13 +87,13 @@ export const TaskCard = ({
   };
 
   return (
-    <Card
+    <Box
       sx={{
+        maxWidth: '500px',
         width: '100%',
         mb: 2,
-        border: task.is_urgent ? '2px solid' : '1px solid',
-        borderColor: task.is_urgent ? 'error.main' : 'divider',
-        backgroundColor: task.is_urgent ? 'error.lighter' : 'background.paper',
+        backgroundColor: 'rgba(248, 247, 255, 1)',
+        borderRadius: '20px'
       }}
     >
       <CardContent>
@@ -252,6 +252,6 @@ export const TaskCard = ({
           </Button>
         )}
       </CardActions>
-    </Card>
+    </Box>
   );
 };

@@ -240,7 +240,7 @@ const TasksFeedPage = () => {
                 <Typography variant="h6">Рекомендуемые для вас</Typography>
               </Box>
 
-              <Stack spacing={2} sx={{ mb: 2 }}>
+              <Stack spacing={2} sx={{ mb: 2, alignItems: 'center' }}>
                 {filteredRecommended.map((task) => (
                   <TaskCard
                     key={task.id}
@@ -277,7 +277,7 @@ const TasksFeedPage = () => {
               </Paper>
             ) : (
               <>
-                <Stack spacing={2}>
+                <Stack spacing={2} sx={{ alignItems: 'center' }}>
                   {filteredTasks.map((task) => (
                     <TaskCard
                       key={task.id}

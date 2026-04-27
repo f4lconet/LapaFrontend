@@ -1,4 +1,4 @@
-export type UserRole = "user" | "volunteer" | "curator" | "organization"
+export type UserRole = "user" | "volunteer" | "curator" | "organization" | "admin"
 
 export interface User {
     id: string
@@ -75,13 +75,14 @@ export interface AuthState {
 }
 
 // Добавим тип для роли на русском
-export type UserRoleRu = "Пользователь" | "Волонтёр" | "Куратор" | "Организация";
+export type UserRoleRu = "Пользователь" | "Волонтёр" | "Куратор" | "Организация" | "Администратор";
 
 export const roleRuMap: Record<UserRole, UserRoleRu> = {
   user: "Пользователь",
   volunteer: "Волонтёр",
   curator: "Куратор",
   organization: "Организация",
+  admin: "Администратор"
 };
 
 // Модели для компетенций волонтера
