@@ -12,18 +12,19 @@ import { ROUTES } from '../../routes/routes'
 
 export const Login = () => {
   const navigate = useNavigate()
-  const { login, isLoading, error, isAuthenticated, isInitializing, clearError } = useAuthPresenter()
+  const { login, isLoading, error, isAuthenticated, isInitializing, clearError, user } = useAuthPresenter()
   
+  // Автоматический редирект если уже авторизован
   useEffect(() => {
-    if (!isInitializing && isAuthenticated) {
-      navigate(ROUTES.PROFILE, { replace: true })
+    if (!isInitializing && isAuthenticated && user) {
+      navigate(`/profile/${user.id}`, { replace: true })
     }
-  }, [isAuthenticated, isInitializing, navigate])
+  }, [isAuthenticated, isInitializing, user, navigate])
   
   const handleSubmit = async (data: { email: string; password: string }) => {
     const result = await login(data)
-    if (result.success) {
-      navigate(ROUTES.PROFILE, { replace: true })
+    if (result.success && result.user) {
+      navigate(`/profile/${result.user.id}`, { replace: true })
     }
   }
   

@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
   { path: ROUTES.KNOWLEDGE, label: 'База знаний', icon: <Book/>}
 ]
 
-export const BurgerMenu = ({ onShare, onLogout }: BurgerMenuProps) => {
+export const BurgerMenu = ({ onLogout }: BurgerMenuProps) => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
@@ -45,13 +45,6 @@ export const BurgerMenu = ({ onShare, onLogout }: BurgerMenuProps) => {
   const handleNavigation = (path: string) => {
     navigate(path)
     handleClose()
-  }
-
-  const handleShare = () => {
-    if (onShare) {
-      onShare()
-      handleClose()
-    }
   }
 
   const handleLogout = () => {
@@ -175,31 +168,6 @@ export const BurgerMenu = ({ onShare, onLogout }: BurgerMenuProps) => {
                 </ListItem>
               )
             })}
-            
-            {/* Дополнительные пункты меню для публичного профиля */}
-            {onShare && (
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  onClick={handleShare}
-                  sx={{
-                    borderRadius: 2,
-                    color: '#ffffff',
-                    '&:hover': {
-                      bgcolor: 'rgba(255,255,255,0.1)',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: 40, color: '#ffffff' }}>
-                    <ShareIcon />
-                  </ListItemIcon>
-                  <ListItemText>
-                    <Typography variant="body1" sx={{ color: '#ffffff' }}>
-                      Поделиться
-                    </Typography>
-                  </ListItemText>
-                </ListItemButton>
-              </ListItem>
-            )}
             
             {onLogout && (
               <ListItem disablePadding sx={{ mb: 1 }}>

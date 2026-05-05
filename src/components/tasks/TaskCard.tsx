@@ -19,8 +19,10 @@ import {
   Delete,
   CheckCircle,
   Cancel,
+  Person,
 } from '@mui/icons-material';
 import type { Task } from '../../models/task.model';
+import { useNavigate } from 'react-router-dom';
 
 interface TaskCardProps {
   task: Task;
@@ -33,6 +35,7 @@ interface TaskCardProps {
   onCancel?: (taskId: string) => void;
   onComplete?: (taskId: string) => void;
   isLoading?: boolean;
+  showCreatorProfile?: boolean;
 }
 
 export const TaskCard = ({
@@ -46,7 +49,10 @@ export const TaskCard = ({
   onCancel,
   onComplete,
   isLoading = false,
+  showCreatorProfile = true,
 }: TaskCardProps) => {
+  const navigate = useNavigate();
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU', {
@@ -84,6 +90,10 @@ export const TaskCard = ({
       cancelled: 'Отменена',
     };
     return labels[status] || status;
+  };
+
+  const handleViewCreatorProfile = () => {
+    navigate(`/profile/${task.creator_id}`);
   };
 
   return (
@@ -163,6 +173,26 @@ export const TaskCard = ({
               </Typography>
             </Box>
           )}
+
+          {showCreatorProfile && (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Person sx={{ fontSize: '1.2rem', color: 'text.secondary' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Автор задачи:
+                </Typography>
+                <Button
+                  size="small"
+                  variant="text"
+                  onClick={handleViewCreatorProfile}
+                  sx={{ textTransform: 'none', minWidth: 'auto', p: 0 }}
+                >
+                  перейти в профиль
+                </Button>
+              </Box>
+            </Box>
+          )}
+          
         </Stack>
       </CardContent>
 

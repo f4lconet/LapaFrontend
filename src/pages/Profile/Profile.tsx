@@ -29,13 +29,6 @@ const Profile = () => {
     navigate('/login');
   };
 
-  const handleShare = () => {
-    if (user) {
-      const url = `${window.location.origin}/profile/${user.id}`;
-      navigator.clipboard.writeText(url);
-      alert('Ссылка на профиль скопирована!');
-    }
-  };
 
   if (isLoading && !user) {
     return (
@@ -56,7 +49,7 @@ const Profile = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <BurgerMenu onShare={isOwnProfile ? handleShare : undefined} onLogout={isOwnProfile ? handleLogout : undefined} />
+        <BurgerMenu onLogout={isOwnProfile ? handleLogout : undefined} />
       </Box>
 
       <ProfileInfo
@@ -70,7 +63,6 @@ const Profile = () => {
         onUpdate={updateProfile}
         onUploadAvatar={uploadAvatar}
         onCompetenciesUpdate={updateCompetencies}
-        // onCancel={() => setEditing(false)}
         onAddAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? addAnimal : undefined}
         onDeleteAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? deleteAnimal : undefined}
       />

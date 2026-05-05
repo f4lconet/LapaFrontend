@@ -20,6 +20,28 @@ export const volunteerService = {
     return response.data;
   },
 
+  async getVolunteerCompetencies(userId: string): Promise<MyCompetencies> {
+    const response = await apiClient.get(`/volunteer/${userId}/competencies`);
+    const data = response.data;
+    
+    // Преобразование snake_case в camelCase
+    return {
+      animalPreferences: data.animal_preferences || [],
+      availability: {
+        schedule: (data.availability?.schedule || []).map((s: any) => ({
+          dayOfWeek: s.day_of_week,
+          startTime: s.start_time,
+          endTime: s.end_time,
+          isWorking: s.is_working
+        })),
+        timezone: data.availability?.timezone || 'UTC'
+      },
+      interactionPreferences: data.interaction_preferences || [],
+      preferences: data.preferences || [],
+      skills: data.skills || []
+    };
+  },
+
   
   async getMyCompetencies(): Promise<MyCompetencies> {
     const response = await apiClient.get('/volunteer/me/competencies');

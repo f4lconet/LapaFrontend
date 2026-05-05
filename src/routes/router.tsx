@@ -4,6 +4,7 @@ import { lazy, Suspense } from 'react'
 import { AuthLayout } from '../layouts/AuthLayout'
 import { ProfileLayout } from '../layouts/ProfileLayout'
 import { ROUTES } from './routes'
+import { ProfileRedirect } from '../layouts/ProfileRedirect'
 
 // Ленивая загрузка страниц
 const Feed = lazy(() => import('../pages/Feed/Feed'))
@@ -27,19 +28,14 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>)
 )
 
 export const router = createBrowserRouter([
-  // Публичные маршруты с основным лейаутом
   {
     path: ROUTES.FEED,
-    // element: <MainLayout />,
     children: [
       { index: true, element: withSuspense(Feed) },
-    //   { path: 'login', element: withSuspense(Login) },
     ],
   },
-  
-  // Маршруты аутентификации (отдельный лейаут)
+
   {
-    // element: <PublicRoute />,
     children: [
       {
         element: <AuthLayout />,
@@ -56,6 +52,10 @@ export const router = createBrowserRouter([
     children: [
       {
         children: [
+          {
+            path: '/profile',
+            element: <ProfileRedirect />
+          },
           { path: '/profile/:userId?', element: withSuspense(Profile) },
           { path: ROUTES.ANIMALS, element: withSuspense(Animals) },
           { path: ROUTES.MYTASKS, element: withSuspense(MyTasks) },
@@ -68,36 +68,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  
-//   // Приватные маршруты (требуют авторизации)
-//   {
-//     element: <PrivateRoute />,
-//     children: [
-//       {
-//         element: <MainLayout />,
-//         children: [
-//           { path: 'dashboard', element: withSuspense(Dashboard) },
-//         ],
-//       },
-//     ],
-//   },
-  
-//   // Админские маршруты (требуют роль admin)
-//   {
-//     element: <PrivateRoute roles={['admin']} />,
-//     children: [
-//       {
-//         element: <AdminLayout />,
-//         children: [
-//           { path: 'admin/users', element: withSuspense(AdminUsers) },
-//         ],
-//       },
-//     ],
-//   },
-  
-//   // 404 - не найдено
-//   {
-//     path: '*',
-//     element: withSuspense(NotFound),
-//   },
 ])

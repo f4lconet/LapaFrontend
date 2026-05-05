@@ -5,13 +5,14 @@ import type {
   RegisterRequest, 
   RegisterResponse,
   LoginRequest,
-  AuthState 
+  AuthState, 
+  User
 } from '../../models/user.model'
 
 interface AuthStore extends AuthState {
   // Actions
   register: (data: RegisterRequest) => Promise<RegisterResponse>
-  login: (data: LoginRequest) => Promise<void>
+  login: (data: LoginRequest) => Promise<{success: boolean; user: User}>
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
   clearError: () => void
@@ -112,6 +113,9 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: null,
           })
+
+          // Возвращаем пользователя, чтобы presenter мог использовать его ID
+          return { success: true, user }
         } catch (error: any) {
           const message = error.response?.data?.message || 'Ошибка при входе'
           set({

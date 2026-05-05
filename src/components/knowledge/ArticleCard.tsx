@@ -19,6 +19,7 @@ interface ArticleCardProps {
   isAdmin?: boolean;
   onEdit?: (article: Article) => void;
   onDelete?: (article: Article) => void;
+  onClick?: (article: Article) => void;
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({
@@ -26,7 +27,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   variant = 'vertical',
   isAdmin = false,
   onEdit,
-  onDelete
+  onDelete,
+  onClick,
 }) => {
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd MMMM yyyy', { locale: ru });
@@ -39,12 +41,20 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     return plainText.substring(0, maxLength) + '...';
   };
 
-  // Проверяем, есть ли обложка и не является ли она пустой строкой
   const hasCoverImage = article.cover_image && article.cover_image.trim() !== '';
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('.article-actions')) {
+      return;
+    }
+    onClick?.(article);
+  };
 
   if (variant === 'horizontal') {
     return (
       <Paper
+        onClick={handleCardClick}
         sx={{
           display: 'flex',
           bgcolor: 'rgba(251, 252, 255, 1)',
@@ -132,6 +142,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
   return (
     <Card
+      onClick={handleCardClick}
       sx={{
         borderRadius: '20px',
         overflow: 'hidden',

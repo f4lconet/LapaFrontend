@@ -197,8 +197,8 @@ export const ProfileInfo = ({
               animals={myAnimals}
               isLoading={isLoading}
               isOwnProfile={isOwnProfile}
-              onAdd={() => setIsAddAnimalOpen(true)}
-              onDelete={onDeleteAnimal}
+              onAdd={isOwnProfile ? () => setIsAddAnimalOpen(true) : undefined}
+              onDelete={isOwnProfile ? onDeleteAnimal : undefined}
             />
           )}
         </>

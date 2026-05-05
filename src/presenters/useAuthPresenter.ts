@@ -34,12 +34,7 @@ export const useAuthPresenter = () => {
   // Логин
   const login = useCallback(
     async (data: LoginRequest) => {
-      try {
-        await storeLogin(data)
-        return { success: true }
-      } catch (error) {
-        return { success: false, error }
-      }
+      return await storeLogin(data)
     },
     [storeLogin]
   )

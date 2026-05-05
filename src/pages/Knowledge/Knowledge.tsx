@@ -28,6 +28,7 @@ import type { Article } from '../../models/knowledge.model';
 import './Knowledge.scss';
 import KnowledgeBgImage from '../../assets/images/knowledge-bg-desktop.png'
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
+import ArticleViewModal from '../../components/knowledge/ArticleViewModal';
 
 const Knowledge: React.FC = () => {
   const {
@@ -57,8 +58,15 @@ const Knowledge: React.FC = () => {
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [searchInput, setSearchInput] = useState(filters.search || '');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewingArticle, setViewingArticle] = useState<Article | null>(null);
   
   const isAdmin = user?.role === 'admin';
+
+  const handleViewArticle = (article: Article) => {
+    setViewingArticle(article);
+    setIsViewModalOpen(true);
+  };
 
   useEffect(() => {
     fetchArticles();
@@ -254,6 +262,7 @@ const Knowledge: React.FC = () => {
                 isAdmin={isAdmin}
                 onEdit={handleEditArticle}
                 onDelete={handleDeleteArticle}
+                onClick={handleViewArticle}
               />
             </Box>
           )}
@@ -267,6 +276,7 @@ const Knowledge: React.FC = () => {
                   isAdmin={isAdmin}
                   onEdit={handleEditArticle}
                   onDelete={handleDeleteArticle}
+                  onClick={handleViewArticle}
                 />
               </Grid>
             ))}
@@ -307,6 +317,15 @@ const Knowledge: React.FC = () => {
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onAdd={handleAddCategory}
+      />
+
+      <ArticleViewModal
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setViewingArticle(null);
+        }}
+        article={viewingArticle}
       />
     </Container>
   );

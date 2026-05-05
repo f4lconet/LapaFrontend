@@ -18,8 +18,12 @@ export const useUserPresenter = () => {
     competencies,
     myAnimals,
     volunteerStats,
+    publicCompetencies,
+    publicAnimals, 
     getProfile,
     fetchPublicProfile,
+    fetchPublicCompetencies,
+    fetchPublicAnimals,
     updateProfile,
     deleteProfile,
     uploadAvatar,
@@ -32,6 +36,7 @@ export const useUserPresenter = () => {
     deleteAnimal,
     clearVolunteerData,
     updateCompetencies,
+    clearPublicData,  
   } = useUserStore();
 
   // Определяем, свой ли это профиль
@@ -44,28 +49,41 @@ export const useUserPresenter = () => {
     } else if (userId) {
       fetchPublicProfile(userId);
     }
-  }, [isOwnProfile, userId, getProfile, fetchPublicProfile]);
+    
+    // Очистка при размонтировании
+    return () => {
+      if (!isOwnProfile) {
+        clearPublicData();
+        clearVolunteerData();
+      }
+    };
+  }, [userId]);
 
-  // Загрузка дополнительных данных в зависимости от роли
+  // Загрузка дополнительных данных после получения пользователя
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+
+    if (isOwnProfile) {
+      // Свой профиль - используем личные эндпоинты
       if (user.role === 'volunteer') {
         fetchVolunteerData();
         fetchVolunteerStats();
       } else if (user.role === 'curator' || user.role === 'organization') {
         fetchMyAnimals();
       }
-    }
-  }, [user, fetchVolunteerData, fetchVolunteerStats, fetchMyAnimals]);
-
-  // Очистка при размонтировании (опционально)
-  useEffect(() => {
-    return () => {
-      if (!isOwnProfile) {
-        clearVolunteerData();
+    } else {
+      // Чужой профиль - используем публичные эндпоинты
+      if (user.role === 'volunteer' && userId) {
+        fetchPublicCompetencies(userId);
+      } else if ((user.role === 'curator' || user.role === 'organization') && userId) {
+        fetchPublicAnimals(userId);
       }
-    };
-  }, [isOwnProfile, clearVolunteerData]);
+    }
+  }, [user, isOwnProfile, userId]);
+
+  // Определяем, какие данные показывать
+  const displayCompetencies = isOwnProfile ? competencies : publicCompetencies;
+  const displayAnimals = isOwnProfile ? myAnimals : publicAnimals;
 
   const handleUpdateProfile = useCallback(async (data: UpdateProfileRequest) => {
     await updateProfile(data);
@@ -80,12 +98,16 @@ export const useUserPresenter = () => {
   }, [uploadAvatar]);
 
   const handleAddAnimal = useCallback(async (data: CreateAnimalRequest) => {
-    await addAnimal(data);
-  }, [addAnimal]);
+    if (isOwnProfile) {
+      await addAnimal(data);
+    }
+  }, [addAnimal, isOwnProfile]);
 
   const handleDeleteAnimal = useCallback(async (id: string) => {
-    await deleteAnimal(id);
-  }, [deleteAnimal]);
+    if (isOwnProfile) {
+      await deleteAnimal(id);
+    }
+  }, [deleteAnimal, isOwnProfile]);
 
   return {
     user,
@@ -95,16 +117,16 @@ export const useUserPresenter = () => {
     isOwnProfile,
     skills,
     preferences,
-    competencies,
-    myAnimals,
+    competencies: displayCompetencies,
+    myAnimals: displayAnimals,
     volunteerStats,
     updateProfile: handleUpdateProfile,
     deleteProfile: handleDeleteProfile,
     uploadAvatar: handleUploadAvatar,
     setEditing,
     clearError,
-    addAnimal: handleAddAnimal,
-    deleteAnimal: handleDeleteAnimal,
-    updateCompetencies,
+    addAnimal: isOwnProfile ? handleAddAnimal : undefined,
+    deleteAnimal: isOwnProfile ? handleDeleteAnimal : undefined,
+    updateCompetencies: isOwnProfile ? updateCompetencies : undefined,
   };
 };

@@ -16,9 +16,14 @@ interface UserStore {
   competencies: MyCompetencies | null;
   myAnimals: Animal[];
   volunteerStats: VolunteerStats | null;
+  publicCompetencies: MyCompetencies | null;
+  publicAnimals: Animal[];
+  isPublicView: boolean;
   
   getProfile: () => Promise<void>
   fetchPublicProfile: (userId: string) => Promise<void>
+  fetchPublicCompetencies: (userId: string) => Promise<void>
+  fetchPublicAnimals: (userId: string) => Promise<void>
   updateProfile: (data: UpdateProfileRequest) => Promise<void>
   deleteProfile: () => Promise<void>
   uploadAvatar: (file: File) => Promise<string>
@@ -31,8 +36,8 @@ interface UserStore {
   deleteAnimal: (animalId: string) => Promise<void>;
   clearVolunteerData: () => void; // для выхода из профиля
   updateCompetencies: () => Promise<void>; // обновление компетенций после редактирования
+  clearPublicData: () => void;
 }
-
 
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -45,9 +50,21 @@ export const useUserStore = create<UserStore>((set, get) => ({
   competencies: null,
   myAnimals: [],
   volunteerStats: null,
+  publicCompetencies: null,
+  publicAnimals: [],
+  isPublicView: false,
   
   getProfile: async () => {
-    set({ isLoading: true, error: null })
+    // set({ isLoading: true, error: null })
+    set({ 
+      user: null, 
+      isLoading: true, 
+      error: null,
+      competencies: null,
+      myAnimals: [],
+      volunteerStats: null
+    });
+    
     try {
       const user = await userService.getMyProfile()
       set({ user, isLoading: false })
@@ -57,12 +74,40 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
   
   fetchPublicProfile: async (userId: string) => {
-    set({ isLoading: true, error: null })
+    // set({ isLoading: true, error: null })
+    set({ 
+      user: null, 
+      isLoading: true, 
+      error: null,
+      publicCompetencies: null,
+      publicAnimals: []
+    });
+
     try {
       const user = await userService.getProfileById(userId)
       set({ user, isLoading: false })
     } catch (error: any) {
       set({ error: error.response?.data?.message || 'Пользователь не найден', isLoading: false })
+    }
+  },
+
+  fetchPublicCompetencies: async (userId: string) => {
+    try {
+      const competencies = await volunteerService.getVolunteerCompetencies(userId);
+      set({ publicCompetencies: competencies });
+    } catch (error) {
+      console.error('Error fetching public competencies:', error);
+      set({ publicCompetencies: null });
+    }
+  },
+
+  fetchPublicAnimals: async (userId: string) => {
+    try {
+      const animals = await animalService.getAnimalsByCurator(userId);
+      set({ publicAnimals: animals });
+    } catch (error) {
+      console.error('Error fetching public animals:', error);
+      set({ publicAnimals: [] });
     }
   },
   
@@ -170,7 +215,15 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
 
   clearVolunteerData: () => {
-    set({ skills: [], preferences: [], competencies: null, myAnimals: [], volunteerStats: null });
+    set({ 
+      skills: [], 
+      preferences: [], 
+      competencies: null, 
+      myAnimals: [], 
+      volunteerStats: null,
+      publicCompetencies: null,
+      publicAnimals: []
+    });
   },
 
   updateCompetencies: async () => {
@@ -180,5 +233,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
     } catch (error: any) {
       set({ error: error.response?.data?.message || 'Ошибка обновления компетенций' });
     }
-  }
+  },
+
+  clearPublicData: () => {
+    set({ 
+      publicCompetencies: null, 
+      publicAnimals: [],
+      isPublicView: false 
+    });
+  },
+
 }))
