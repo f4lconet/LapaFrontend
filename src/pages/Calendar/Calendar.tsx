@@ -1,36 +1,48 @@
-import { useEffect, useState } from 'react'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import listPlugin from '@fullcalendar/list'
-import { Box, Card, CardContent, Typography, CircularProgress, Alert, Button, Modal, TextField } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
+// pages/Calendar/Calendar.tsx
+import { useEffect, useState, useCallback } from 'react'
+import { Box, Card, CardContent, CircularProgress, Alert, Fab, Tooltip } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
 import { useCalendarPresenter } from '../../presenters/useCalendarPresenter'
+import { useAuthPresenter } from '../../presenters/useAuthPresenter'
 import type { CalendarEvent } from '../../models/calendar.model'
-import './Calendar.scss'
-import { BurgerMenu } from '../../components/navigation/BurgerMenu'
-
-interface EventModalState {
-  open: boolean
-  event: CalendarEvent | null
-}
+import { useCalendarForm } from '../../hooks/useCalendarForm'
+import { CalendarHeader } from '../../components/calendar/CalendarHeader'
+import { AdminAlert } from '../../components/calendar/AdminAlert'
+import { CalendarView } from '../../components/calendar/CalendarView'
+import { EventModal } from '../../components/calendar/EventModal'
+import { CreateEventDialog } from '../../components/calendar/CreateEventDialog'
 
 const Calendar = () => {
-  const { loadMonthEvents, currentMonthEvents, isLoading, error, currentYear, currentMonth, clearError } =
-    useCalendarPresenter()
+  const { 
+    loadMonthEvents, 
+    currentMonthEvents, 
+    isLoading, 
+    error, 
+    currentYear, 
+    currentMonth, 
+    clearError,
+    createEvent,
+    updateEvent,
+    deleteEvent
+  } = useCalendarPresenter()
+  
+  const { user } = useAuthPresenter()
+  const isAdmin = user?.role === 'admin'
+  const { formData, isFormValid, resetForm, setEventToForm, getCreatePayload, getUpdatePayload, updateForm } = useCalendarForm()
 
-  const [eventModal, setEventModal] = useState<EventModalState>({
-    open: false,
-    event: null,
-  })
+  const [eventModal, setEventModal] = useState<{
+    open: boolean
+    event: CalendarEvent | null
+    mode: 'view' | 'edit'
+  }>({ open: false, event: null, mode: 'view' })
+  
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [selectedDate, setSelectedDate] = useState('')
 
-  // Load events on component mount and when month changes
   useEffect(() => {
     loadMonthEvents(currentYear, currentMonth)
   }, [currentYear, currentMonth, loadMonthEvents])
 
-  // Convert stored events to FullCalendar format
   const calendarEvents = currentMonthEvents
     ? Object.entries(currentMonthEvents).flatMap(([day, events]) =>
         events.map((event) => ({
@@ -44,41 +56,75 @@ const Calendar = () => {
       )
     : []
 
-  const handleEventClick = (info: any) => {
+  const refreshEvents = useCallback(() => {
+    loadMonthEvents(currentYear, currentMonth)
+  }, [loadMonthEvents, currentYear, currentMonth])
+
+  const handleEventClick = useCallback((info: any) => {
     const event = info.event.extendedProps as CalendarEvent
-    setEventModal({ open: true, event })
-  }
+    setEventModal({ open: true, event, mode: 'view' })
+  }, [])
 
-  const handleCloseModal = () => {
-    setEventModal({ open: false, event: null })
-  }
+  const handleDateClick = useCallback((info: any) => {
+    if (!isAdmin) return
+    const date = info.dateStr
+    setSelectedDate(date)
+    resetForm(date)
+    setCreateDialogOpen(true)
+  }, [isAdmin, resetForm])
 
-  const handlePrevMonth = () => {
-    const newDate = new Date(currentYear, currentMonth - 2)
-    loadMonthEvents(newDate.getFullYear(), newDate.getMonth() + 1)
-  }
+  const handleCloseModal = useCallback(() => {
+    setEventModal({ open: false, event: null, mode: 'view' })
+    resetForm()
+  }, [resetForm])
 
-  const handleNextMonth = () => {
-    const newDate = new Date(currentYear, currentMonth)
-    loadMonthEvents(newDate.getFullYear(), newDate.getMonth() + 1)
-  }
+  const handleEditEvent = useCallback(() => {
+    if (eventModal.event) {
+      setEventToForm(eventModal.event)
+      setEventModal({ ...eventModal, mode: 'edit' })
+    }
+  }, [eventModal, setEventToForm])
+
+  const handleDeleteEvent = useCallback(async () => {
+    if (eventModal.event && window.confirm('Вы уверены, что хотите удалить это событие?')) {
+      await deleteEvent(eventModal.event.id)
+      handleCloseModal()
+      refreshEvents()
+    }
+  }, [eventModal.event, deleteEvent, handleCloseModal, refreshEvents])
+
+  const handleSaveEvent = useCallback(async () => {
+    if (eventModal.event && eventModal.mode === 'edit') {
+      const payload = getUpdatePayload()
+      await updateEvent(eventModal.event.id, payload)
+      handleCloseModal()
+      refreshEvents()
+      resetForm()
+    }
+  }, [eventModal, getUpdatePayload, updateEvent, handleCloseModal, refreshEvents, resetForm])
+
+  const handleCreateEvent = useCallback(async () => {
+    const payload = getCreatePayload()
+    if (payload) {
+      await createEvent(payload)
+      setCreateDialogOpen(false)
+      refreshEvents()
+      resetForm()
+    }
+  }, [getCreatePayload, createEvent, refreshEvents, resetForm])
+
+  const handleCloseCreateDialog = useCallback(() => {
+    setCreateDialogOpen(false)
+    resetForm()
+  }, [resetForm])
 
   return (
-    <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <BurgerMenu />
-        </Box>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" sx={{ mb: 2, fontWeight: 600 }}>
-          Календарь мероприятий
-        </Typography>
-      </Box>
-
-      {error && (
-        <Alert severity="error" onClose={clearError} sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+    <Box sx={{ p: 3, position: 'relative' }}>
+      <CalendarHeader />
+      
+      {error && <Alert severity="error" onClose={clearError} sx={{ mb: 2 }}>{error}</Alert>}
+      
+      <AdminAlert show={isAdmin} />
 
       <Card>
         <CardContent>
@@ -87,141 +133,50 @@ const Calendar = () => {
               <CircularProgress />
             </Box>
           ) : (
-            <Box className="calendar-container">
-              <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-                initialView="dayGridMonth"
-                headerToolbar={{
-                  left: 'prev,next today',
-                  center: 'title',
-                  right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth',
-                }}
-                buttonText={{
-                    today: 'Сегодня',
-                    month: 'Месяц',
-                    week: 'Неделя',
-                    day: 'День',
-                    list: 'Список'
-                }}
-                events={calendarEvents}
-                eventClick={handleEventClick}
-                height="auto"
-                locale="ruLocale"
-                contentHeight="auto"
-                displayEventTime={true}
-                displayEventEnd={true}
-                titleFormat={{ year: 'numeric', month: 'long' }}  // "Апрель 2025"
-                weekText="Неделя"
-                allDayText="Весь день"
-                moreLinkText={(num) => `+ ещё ${num}`}
-                noEventsText="Нет событий"
-                dayHeaderFormat={{ weekday: 'long' }}  // "Понедельник"
-                views={{
-                    dayGridMonth: {
-                    titleFormat: { year: 'numeric', month: 'long' },
-                    dayHeaderFormat: { weekday: 'short' }  // "Пн", "Вт" и т.д.
-                    },
-                    timeGridWeek: {
-                    titleFormat: { year: 'numeric', month: 'long', day: 'numeric' },
-                    dayHeaderFormat: { weekday: 'long', day: 'numeric' }  // "Понедельник 20"
-                    }
-                }}
-              />
-            </Box>
+            <CalendarView
+              events={calendarEvents}
+              isLoading={isLoading}
+              isAdmin={isAdmin}
+              onEventClick={handleEventClick}
+              onDateClick={handleDateClick}
+            />
           )}
         </CardContent>
       </Card>
 
-      {/* Event Details Modal */}
-      <Modal open={eventModal.open} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'background.paper',
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-            maxWidth: 500,
-            width: '90%',
-          }}
-        >
-          {eventModal.event && (
-            <>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Event Details
-                </Typography>
-                <Button
-                  onClick={handleCloseModal}
-                  sx={{
-                    minWidth: 'auto',
-                    p: 1,
-                  }}
-                >
-                  <CloseIcon />
-                </Button>
-              </Box>
+      {isAdmin && (
+        <Tooltip title="Добавить событие" placement="left">
+          <Fab color="primary" sx={{ position: 'fixed', bottom: 24, right: 24 }} onClick={() => {
+            resetForm()
+            setCreateDialogOpen(true)
+          }}>
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+      )}
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 0.5 }}>
-                    Title
-                  </Typography>
-                  <Typography variant="body1">{eventModal.event.title}</Typography>
-                </Box>
+      <EventModal
+        open={eventModal.open}
+        event={eventModal.event}
+        mode={eventModal.mode}
+        isAdmin={isAdmin}
+        formData={formData}
+        onClose={handleCloseModal}
+        onEdit={handleEditEvent}
+        onDelete={handleDeleteEvent}
+        onSave={handleSaveEvent}
+        onFormChange={updateForm}
+      />
 
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 0.5 }}>
-                    Date
-                  </Typography>
-                  <Typography variant="body1">{eventModal.event.event_date}</Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 0.5 }}>
-                    Time
-                  </Typography>
-                  <Typography variant="body1">
-                    {eventModal.event.start_time} - {eventModal.event.end_time}
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 0.5 }}>
-                    Location
-                  </Typography>
-                  <Typography variant="body1">{eventModal.event.location}</Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 0.5 }}>
-                    Description
-                  </Typography>
-                  <Typography variant="body1">{eventModal.event.description}</Typography>
-                </Box>
-
-                {eventModal.event.task_id && (
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 0.5 }}>
-                      Related Task ID
-                    </Typography>
-                    <Typography variant="body1">{eventModal.event.task_id}</Typography>
-                  </Box>
-                )}
-
-                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
-                  <Button onClick={handleCloseModal} variant="contained">
-                    Close
-                  </Button>
-                </Box>
-              </Box>
-            </>
-          )}
-        </Box>
-      </Modal>
+      <CreateEventDialog
+        open={createDialogOpen}
+        formData={formData}
+        selectedDate={selectedDate}
+        isValid={isFormValid}
+        onClose={handleCloseCreateDialog}
+        onChange={updateForm}
+        onSubmit={handleCreateEvent}
+      />
     </Box>
   )
 }

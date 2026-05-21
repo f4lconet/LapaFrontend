@@ -2,8 +2,6 @@ import { create } from 'zustand'
 import { calendarService } from '../api/calendar.service'
 import type {
   CalendarEvent,
-  CalendarEventListResponse,
-  CalendarMonthResponse,
   CreateCalendarEventRequest,
   UpdateCalendarEventRequest,
 } from '../../models/calendar.model'

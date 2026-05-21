@@ -42,15 +42,32 @@ export const calendarService = {
 
   // POST /calendar/events - create new event (admin only)
   async createEvent(data: CreateCalendarEventRequest): Promise<CalendarEvent> {
-    const response = await apiClient.post<CalendarEvent>('/calendar/events', data)
-    return response.data
-  },
+  // Убедитесь, что данные отправляются в правильном формате
+  const payload = {
+    title: data.title,
+    description: data.description || '',
+    event_date: data.event_date,
+    start_time: data.start_time,
+    end_time: data.end_time,
+    location: data.location || '',
+  }
+  const response = await apiClient.post<CalendarEvent>('/calendar/events', payload)
+  return response.data
+},
 
   // PUT /calendar/events/{event_id} - update event (admin only)
   async updateEvent(eventId: string, data: UpdateCalendarEventRequest): Promise<CalendarEvent> {
-    const response = await apiClient.put<CalendarEvent>(`/calendar/events/${eventId}`, data)
-    return response.data
-  },
+  const payload: any = {}
+  if (data.title !== undefined) payload.title = data.title
+  if (data.description !== undefined) payload.description = data.description
+  if (data.event_date !== undefined) payload.event_date = data.event_date
+  if (data.start_time !== undefined) payload.start_time = data.start_time
+  if (data.end_time !== undefined) payload.end_time = data.end_time
+  if (data.location !== undefined) payload.location = data.location
+  
+  const response = await apiClient.put<CalendarEvent>(`/calendar/events/${eventId}`, payload)
+  return response.data
+},
 
   // DELETE /calendar/events/{event_id} - delete event (admin only)
   async deleteEvent(eventId: string): Promise<string> {
