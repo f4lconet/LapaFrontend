@@ -15,12 +15,14 @@ import {
   AccordionDetails,
 } from '@mui/material';
 import { Search, ExpandMore, TrendingUp } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
 import { TaskCard } from '../../components/tasks/TaskCard';
 import { useTaskStore } from '../../services/stores/useTaskStore';
 import { useUserPresenter } from '../../presenters/useUserPresenter';
 
 const TasksFeedPage = () => {
+  const navigate = useNavigate();
   const { user } = useUserPresenter();
   const {
     tasks,
@@ -167,8 +169,11 @@ const TasksFeedPage = () => {
   };
 
   const handleChat = (taskId: string) => {
-    // TODO: Implement chat redirection
-    console.log('Chat with curator:', taskId);
+    const task = tasks.find((t) => t.id === taskId) || recommendedTasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // For volunteer: chat with creator (curator/org)
+    navigate(`/chat?userId=${task.creator_id}`);
   };
 
   return (

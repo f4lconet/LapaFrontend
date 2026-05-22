@@ -9,7 +9,7 @@ import {
   Avatar,
   Grid,
 } from '@mui/material';
-import { Edit, Phone, LocationOn, Email, CheckCircle, Cancel } from '@mui/icons-material';
+import { Edit, Phone, LocationOn, Email, CheckCircle, Cancel, Chat } from '@mui/icons-material';
 import type { User, UpdateProfileRequest, MyCompetencies, Animal, CreateAnimalRequest } from '../../models/user.model';
 import { RoleBadge } from './RoleBadge';
 import { VolunteerStats } from './VolunteerStats';
@@ -28,6 +28,7 @@ interface ProfileInfoProps {
   myAnimals: Animal[];
   onUpdate: (data: UpdateProfileRequest) => Promise<void>;
   onUploadAvatar: (file: File) => Promise<string>;
+  onChat?: () => void;
   onAddAnimal?: (data: CreateAnimalRequest) => Promise<void>;
   onDeleteAnimal?: (id: string) => Promise<void>;
   onCompetenciesUpdate?: () => Promise<void>;
@@ -42,6 +43,7 @@ export const ProfileInfo = ({
   myAnimals,
   onUpdate,
   onUploadAvatar,
+  onChat,
   onAddAnimal,
   onDeleteAnimal,
   onCompetenciesUpdate,
@@ -89,6 +91,17 @@ export const ProfileInfo = ({
                   variant="outlined"
                 >
                   Редактировать
+                </Button>
+              )}
+              {!isOwnProfile && onChat && (
+                <Button
+                  size="small"
+                  startIcon={<Chat />}
+                  onClick={onChat}
+                  variant="contained"
+                  color="primary"
+                >
+                  Написать сообщение
                 </Button>
               )}
             </Box>

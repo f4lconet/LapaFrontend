@@ -29,6 +29,11 @@ const Profile = () => {
     navigate('/login');
   };
 
+  const handleChat = () => {
+    if (user?.id) {
+      navigate(`/chat?userId=${user.id}`);
+    }
+  };
 
   if (isLoading && !user) {
     return (
@@ -62,6 +67,7 @@ const Profile = () => {
         myAnimals={myAnimals}
         onUpdate={updateProfile}
         onUploadAvatar={uploadAvatar}
+        onChat={!isOwnProfile ? handleChat : undefined}
         onCompetenciesUpdate={updateCompetencies}
         onAddAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? addAnimal : undefined}
         onDeleteAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? deleteAnimal : undefined}

@@ -13,6 +13,7 @@ import {
   Tab as MuiTab,
 } from '@mui/material';
 import { Add, Assignment, CheckCircle, Archive } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
 import { TaskCard } from '../../components/tasks/TaskCard';
 import { AddTaskDialog } from '../../components/tasks/AddTaskDialog';
@@ -43,6 +44,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const MyTasksPage = () => {
+  const navigate = useNavigate();
   const { user } = useUserPresenter();
   const {
     tasks,
@@ -117,8 +119,17 @@ const MyTasksPage = () => {
   };
 
   const handleChat = (taskId: string) => {
-    // TODO: Implement chat redirection
-    console.log('Chat with assignee:', taskId);
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // For owner: chat with assignee (volunteer)
+    if (isCuratorOrOrg && task.assignee_id) {
+      navigate(`/chat?userId=${task.assignee_id}`);
+    }
+    // For volunteer: chat with creator (curator/org)
+    else if (isVolunteer && task.creator_id) {
+      navigate(`/chat?userId=${task.creator_id}`);
+    }
   };
 
   return (

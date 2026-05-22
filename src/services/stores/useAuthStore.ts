@@ -8,6 +8,7 @@ import type {
   AuthState, 
   User
 } from '../../models/user.model'
+import { webSocketService } from '../api/websocket.service'
 
 interface AuthStore extends AuthState {
   // Actions
@@ -130,6 +131,9 @@ export const useAuthStore = create<AuthStore>()(
       logout: async () => {
         set({ isLoading: true })
         try {
+          if (webSocketService.isConnected()) {
+            webSocketService.disconnect()
+          }
           await authService.logout()
         } catch {
           // ignore logout errors, still clear client state

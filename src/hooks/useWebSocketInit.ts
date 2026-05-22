@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { webSocketService } from '../services/websocket.service'
+import { webSocketService } from '../services/api/websocket.service'
 import { useAuthStore } from '../services/stores/useAuthStore'
 import { useChatStore } from '../services/stores/useChatStore'
 

@@ -14,7 +14,7 @@
     ],
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/@yandex/ymaps3-types"

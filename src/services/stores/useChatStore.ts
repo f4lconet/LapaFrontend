@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { chatService } from '../api/chat.service'
-import { webSocketService } from '../websocket.service'
+import { webSocketService } from '../api/websocket.service'
 import type {
   Chat,
   ChatListResponse,
@@ -22,6 +22,8 @@ interface ChatStore {
   currentOffset: number
   messagesTotal: number
   messagesOffset: number
+  _currentChatId?: string | null
+  _messageCallback?: ((message: ChatMessage) => void) | null
 
   // Actions
   fetchChats: (limit?: number, offset?: number) => Promise<void>
@@ -118,19 +120,44 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   joinChat: async (chatId: string) => {
     set({ isLoading: true, error: null })
     try {
+      console.log('Joining chat:', chatId)
+      
+      // Подключаемся к WebSocket если еще не подключены
+      const token = localStorage.getItem('accessToken')
+      if (!webSocketService.isConnected() && token) {
+        console.log('WebSocket not connected, connecting...')
+        await webSocketService.connect(token)
+        set({ isConnected: true })
+        console.log('✅ WebSocket connected successfully')
+      } else {
+        console.log('WebSocket already connected:', webSocketService.isConnected())
+      }
+
       // Load message history first
+      console.log('Loading message history...')
       await get().fetchMessages(chatId)
 
-      // Subscribe to new messages via WebSocket
+      // Store callback reference for cleanup
       const messageCallback = (message: ChatMessage) => {
+        console.log('📨 New message received via WebSocket:', message)
         set((state) => ({
           messages: [...state.messages, message],
         }))
       }
 
+      // Сохраняем callback в store для возможности отписки
+      set({ 
+        _currentChatId: chatId,
+        _messageCallback: messageCallback 
+      })
+
+      console.log('Joining WebSocket chat room with event: chat_join')
       chatService.joinChat(chatId, messageCallback)
+      
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to join chat' })
+      const errorMessage = error instanceof Error ? error.message : 'websocket error'
+      console.error('❌ Error joining chat:', error)
+      set({ error: errorMessage, isConnected: false })
     } finally {
       set({ isLoading: false })
     }
@@ -138,19 +165,44 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   // Leave chat room (WebSocket)
   leaveChat: async () => {
-    const { currentChat } = get()
-    if (currentChat?.id) {
-      chatService.leaveChat(currentChat.id)
-      set({ messages: [] })
+    const { currentChat, _currentChatId, _messageCallback } = get()
+    const chatId = currentChat?.id || _currentChatId
+    
+    if (chatId && _messageCallback) {
+      chatService.leaveChat(chatId, _messageCallback)
+      set({ 
+        messages: [],
+        _currentChatId: null,
+        _messageCallback: null 
+      })
     }
+    
+    // Не отключаем WebSocket полностью, чтобы другие часты могли использовать
+    // Если нужно отключить - раскомментируйте:
+    // if (webSocketService.isConnected()) {
+    //   webSocketService.disconnect()
+    //   set({ isConnected: false })
+    // }
   },
 
   // Send message via WebSocket
   sendMessage: async (chatId: string, data: CreateMessageRequest) => {
     set({ isLoading: true, error: null })
     try {
-      chatService.sendMessage(chatId, data)
+      // Пробуем отправить через WebSocket
+      if (webSocketService.isConnected()) {
+        console.log('Sending message via WebSocket')
+        chatService.sendMessage(chatId, data)
+      } else {
+        // Fallback на HTTP
+        console.log('WebSocket not connected, sending via HTTP')
+        const message = await chatService.sendMessageViaHttp(chatId, data)
+        set((state) => ({
+          messages: [...state.messages, message],
+        }))
+      }
     } catch (error) {
+      console.error('Failed to send message:', error)
       set({ error: error instanceof Error ? error.message : 'Failed to send message' })
     } finally {
       set({ isLoading: false })

@@ -44,9 +44,12 @@ export const useChatPresenter = () => {
   const createChat = useCallback(
     async (data: CreateChatRequest) => {
       try {
+        console.log('createChat called with data:', data)
         const chat = await storeCreateChat(data)
+        console.log('createChat result:', chat)
         return { success: !!chat, data: chat }
       } catch (err) {
+        console.error('createChat error:', err)
         return { success: false, error: err }
       }
     },
