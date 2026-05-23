@@ -20,6 +20,7 @@ import {
   CheckCircle,
   Cancel,
   Person,
+  RateReview,
 } from '@mui/icons-material';
 import type { Task } from '../../models/task.model';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +34,7 @@ interface TaskCardProps {
   onChat?: (taskId: string) => void;
   onEdit?: (taskId: string) => void;
   onCancel?: (taskId: string) => void;
+  onDelete?: (taskId: string) => void;
   onComplete?: (taskId: string) => void;
   isLoading?: boolean;
   showCreatorProfile?: boolean;
@@ -47,6 +49,7 @@ export const TaskCard = ({
   onChat,
   onEdit,
   onCancel,
+  onDelete,
   onComplete,
   isLoading = false,
   showCreatorProfile = true,
@@ -95,6 +98,16 @@ export const TaskCard = ({
   const handleViewCreatorProfile = () => {
     navigate(`/profile/${task.creator_id}`);
   };
+
+  const handleViewAssigneeProfile = () => {
+    if (task.assignee_id) {
+      navigate(`/profile/${task.assignee_id}`);
+    }
+  };
+
+  const isActiveTask = task.status !== 'completed' && task.status !== 'cancelled';
+  const isArchived = task.status === 'completed' || task.status === 'cancelled';
+  const isCompleted = task.status === 'completed';
 
   return (
     <Box
@@ -171,6 +184,17 @@ export const TaskCard = ({
               <Typography variant="caption" color="text.secondary">
                 Исполнитель: {task.assignee_name}
               </Typography>
+              {/* Кнопка перехода к профилю исполнителя */}
+              {task.assignee_id && (
+                <Button
+                  size="small"
+                  variant="text"
+                  onClick={handleViewAssigneeProfile}
+                  sx={{ textTransform: 'none', minWidth: 'auto', p: 0, fontSize: '0.75rem' }}
+                >
+                  профиль
+                </Button>
+              )}
             </Box>
           )}
 
@@ -192,11 +216,10 @@ export const TaskCard = ({
               </Box>
             </Box>
           )}
-          
         </Stack>
       </CardContent>
 
-      <CardActions sx={{ justifyContent: 'flex-end', gap: 1, pt: 0 }}>
+      <CardActions sx={{ justifyContent: 'flex-end', gap: 1, pt: 0, flexWrap: 'wrap' }}>
         {/* Для волонтеров - Взять задачу */}
         {isVolunteer && task.status === 'in_pending' && onTake && (
           <Button
@@ -209,8 +232,8 @@ export const TaskCard = ({
           </Button>
         )}
 
-        {/* Чат для волонтера */}
-        {isVolunteer && isAssigned && onChat && (
+        {/* Чат для волонтера и владельца (только в активных задачах) */}
+        {!isArchived && ((isVolunteer && isAssigned) || (isOwner && task.assignee_name)) && onChat && (
           <Button
             size="small"
             startIcon={<Chat />}
@@ -221,32 +244,21 @@ export const TaskCard = ({
           </Button>
         )}
 
-        {/* Отмена для волонтера */}
-        {isVolunteer && isAssigned && onCancel && (
+        {/* Завершить задачу - для волонтёра */}
+        {isVolunteer && isAssigned && isActiveTask && onComplete && (
           <Button
             size="small"
-            startIcon={<Cancel />}
-            onClick={() => onCancel(task.id)}
+            startIcon={<CheckCircle />}
+            onClick={() => onComplete(task.id)}
             disabled={isLoading}
-            color="warning"
+            color="success"
+            variant="contained"
           >
-            Отменить
+            Завершить
           </Button>
         )}
 
-        {/* Для владельца - Чат с волонтером */}
-        {isOwner && task.assignee_name && onChat && (
-          <Button
-            size="small"
-            startIcon={<Chat />}
-            onClick={() => onChat(task.id)}
-            disabled={isLoading}
-          >
-            Чат
-          </Button>
-        )}
-
-        {/* Для владельца - Изменить и Завершить */}
+        {/* Для владельца - Изменить (только для pending) */}
         {isOwner && task.status === 'in_pending' && onEdit && (
           <Button
             size="small"
@@ -258,25 +270,58 @@ export const TaskCard = ({
           </Button>
         )}
 
-        {isOwner && task.status !== 'completed' && task.status !== 'cancelled' && onComplete && (
+        {/* Отмена для волонтера (отказ от задачи) */}
+        {isVolunteer && isAssigned && isActiveTask && onCancel && (
           <Button
             size="small"
-            startIcon={<CheckCircle />}
-            onClick={() => onComplete(task.id)}
+            startIcon={<Cancel />}
+            onClick={() => onCancel(task.id)}
             disabled={isLoading}
-            color="success"
+            color="warning"
           >
-            Завершить
+            Отказаться
           </Button>
         )}
 
-        {isOwner && onCancel && (
+        {/* Кнопка "Оставить отзыв" для создателя в завершённых задачах */}
+        {isOwner && isCompleted && task.assignee_id && (
+          <Button
+            size="small"
+            startIcon={<RateReview />}
+            onClick={handleViewAssigneeProfile}
+            disabled={isLoading}
+            color="primary"
+            variant="outlined"
+          >
+            Оставить отзыв
+          </Button>
+        )}
+
+        {/* Удаление задачи для создателя (только для активных задач, не в архиве) */}
+        {isOwner && !isArchived && onDelete && (
           <Button
             size="small"
             startIcon={<Delete />}
-            onClick={() => onCancel(task.id)}
+            onClick={() => {
+              if (window.confirm('Вы уверены, что хотите полностью удалить эту задачу? Это действие нельзя отменить.')) {
+                onDelete(task.id);
+              }
+            }}
             disabled={isLoading}
             color="error"
+          >
+            Удалить
+          </Button>
+        )}
+
+        {/* Отмена для создателя (если задача активна и есть исполнитель) */}
+        {isOwner && isActiveTask && task.assignee_name && onCancel && (
+          <Button
+            size="small"
+            startIcon={<Cancel />}
+            onClick={() => onCancel(task.id)}
+            disabled={isLoading}
+            color="warning"
           >
             Отменить
           </Button>

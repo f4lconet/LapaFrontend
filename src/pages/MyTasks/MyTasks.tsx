@@ -10,7 +10,6 @@ import {
   Alert,
   Tabs,
   Tab,
-  Tab as MuiTab,
 } from '@mui/material';
 import { Add, Assignment, CheckCircle, Archive } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -48,13 +47,18 @@ const MyTasksPage = () => {
   const { user } = useUserPresenter();
   const {
     tasks,
+    archivedTasks,
     isLoading,
     error,
+    totalArchived,
     fetchTasks,
+    fetchArchivedTasks,
     createTask,
     updateTask,
     cancelTask,
     completeTask,
+    deleteTask,
+    loadMoreArchived,
     clearError,
   } = useTaskStore();
 
@@ -67,16 +71,24 @@ const MyTasksPage = () => {
   const isCuratorOrOrg = user?.role === 'curator' || user?.role === 'organization';
 
   useEffect(() => {
-    // Fetch my tasks when component mounts
     if (user) {
       fetchTasks();
+      // Загружаем архив при монтировании
+      fetchArchivedTasks(user.id, user.role);
     }
-  }, [user, fetchTasks]);
+  }, [user, fetchTasks, fetchArchivedTasks]);
+
+  // Перезагружаем архив при переключении на вкладку архива
+  useEffect(() => {
+    const archiveTabIndex = isCuratorOrOrg ? 2 : 1;
+    if (tabValue === archiveTabIndex && user) {
+      fetchArchivedTasks(user.id, user.role);
+    }
+  }, [tabValue, user, isCuratorOrOrg, fetchArchivedTasks]);
 
   const pendingTasks = tasks.filter((t) => t.status === 'in_pending');
-  const activeTasks = tasks.filter((t) => t.status === 'assigned' || t.status === 'in_progress');
-  const archivedTasks = tasks.filter(
-    (t) => t.status === 'completed' || t.status === 'cancelled'
+  const activeTasks = tasks.filter(
+    (t) => t.status === 'assigned' || t.status === 'in_progress'
   );
 
   const handleCreateTask = async (data: CreateTaskRequest) => {
@@ -97,11 +109,6 @@ const MyTasksPage = () => {
     }
   };
 
-  const handleTakeTask = async (taskId: string) => {
-    // For volunteers taking tasks (should be on TasksFeed)
-    // This shouldn't happen here
-  };
-
   const handleCancelTask = async (taskId: string) => {
     try {
       await cancelTask(taskId);
@@ -113,13 +120,29 @@ const MyTasksPage = () => {
   const handleCompleteTask = async (taskId: string) => {
     try {
       await completeTask(taskId);
+      // После завершения обновляем архив
+      if (user) {
+        fetchArchivedTasks(user.id, user.role);
+      }
+    } catch (err) {
+      // Error is handled
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await deleteTask(taskId);
+      // Обновляем архив после удаления
+      if (user) {
+        fetchArchivedTasks(user.id, user.role);
+      }
     } catch (err) {
       // Error is handled
     }
   };
 
   const handleChat = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
+    const task = tasks.find((t) => t.id === taskId) || archivedTasks.find((t) => t.id === taskId);
     if (!task) return;
 
     // For owner: chat with assignee (volunteer)
@@ -129,6 +152,12 @@ const MyTasksPage = () => {
     // For volunteer: chat with creator (curator/org)
     else if (isVolunteer && task.creator_id) {
       navigate(`/chat?userId=${task.creator_id}`);
+    }
+  };
+
+  const handleLoadMoreArchived = () => {
+    if (user) {
+      loadMoreArchived(user.id, user.role);
     }
   };
 
@@ -155,7 +184,7 @@ const MyTasksPage = () => {
         </Alert>
       )}
 
-      {isLoading && activeTasks.length === 0 && pendingTasks.length === 0 ? (
+      {isLoading && tasks.length === 0 && archivedTasks.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress />
         </Box>
@@ -169,7 +198,7 @@ const MyTasksPage = () => {
             >
               {isCuratorOrOrg && <Tab label="Ожидают исполнителя" id="tab-0" />}
               <Tab
-                label={isCuratorOrOrg ? 'Активные' : 'Активные'}
+                label="Активные"
                 id={isCuratorOrOrg ? 'tab-1' : 'tab-0'}
               />
               <Tab
@@ -213,7 +242,7 @@ const MyTasksPage = () => {
                         setEditingTaskId(taskId);
                         setIsAddDialogOpen(true);
                       }}
-                      onCancel={handleCancelTask}
+                      onDelete={handleDeleteTask}
                       isLoading={isLoading}
                     />
                   ))}
@@ -247,8 +276,9 @@ const MyTasksPage = () => {
                       setEditingTaskId(taskId);
                       setIsAddDialogOpen(true);
                     } : undefined}
-                    onCancel={isCuratorOrOrg ? handleCancelTask : handleCancelTask}
-                    onComplete={isCuratorOrOrg ? handleCompleteTask : undefined}
+                    onCancel={handleCancelTask}
+                    onDelete={isCuratorOrOrg ? handleDeleteTask : undefined}
+                    onComplete={isVolunteer ? handleCompleteTask : undefined}
                     isLoading={isLoading}
                   />
                 ))}
@@ -268,16 +298,32 @@ const MyTasksPage = () => {
                 </Box>
               </Paper>
             ) : (
-              <Stack spacing={2}>
-                {archivedTasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    isOwner={isCuratorOrOrg}
-                    isLoading={isLoading}
-                  />
-                ))}
-              </Stack>
+              <>
+                <Stack spacing={2}>
+                  {archivedTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      isOwner={isCuratorOrOrg}
+                      isVolunteer={isVolunteer}
+                      onChat={handleChat}
+                      onDelete={isCuratorOrOrg ? handleDeleteTask : undefined}
+                      isLoading={isLoading}
+                    />
+                  ))}
+                </Stack>
+                
+                {archivedTasks.length < totalArchived && (
+                  <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Button 
+                      onClick={handleLoadMoreArchived} 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Загрузка...' : 'Показать ещё'}
+                    </Button>
+                  </Box>
+                )}
+              </>
             )}
           </TabPanel>
         </>

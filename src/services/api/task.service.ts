@@ -54,6 +54,10 @@ export const taskService = {
     return response.data;
   },
 
+  async deleteTask(taskId: string): Promise<void> {
+    await apiClient.delete(`/tasks/${taskId}`);
+  },
+
   // GET /tasks - get completed tasks count (for volunteer stats)
   async getCompletedTasksCount(): Promise<number> {
     try {
@@ -65,5 +69,49 @@ export const taskService = {
       console.error('Error fetching completed tasks count:', error);
       return 0;
     }
-  }
+  },
+
+  // Получить выполненные задачи волонтёра, созданные текущим пользователем
+  async getVolunteerCompletedTasks(
+    volunteerId: string, 
+    limit: number = 20, 
+    offset: number = 0
+  ): Promise<TaskListResponse> {
+    const response = await apiClient.get<TaskListResponse>(
+      `/tasks/volunteer/${volunteerId}/completed`,
+      {
+        params: { limit, offset }
+      }
+    );
+    return response.data;
+  },
+
+   // Получить выполненные задачи, созданные указанным пользователем
+  async getCreatorCompletedTasks(
+    creatorId: string,
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<TaskListResponse> {
+    const response = await apiClient.get<TaskListResponse>(
+      `/tasks/creator/${creatorId}/completed`,
+      {
+        params: { limit, offset }
+      }
+    );
+    return response.data;
+  },
+
+  // Получить выполненные задания текущего волонтёра
+  async getMyVolunteerCompletedTasks(
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<TaskListResponse> {
+    const response = await apiClient.get<TaskListResponse>(
+      '/tasks/volunteer/me/completed',
+      {
+        params: { limit, offset }
+      }
+    );
+    return response.data;
+  },
 };

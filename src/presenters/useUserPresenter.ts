@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUserStore } from '../services/stores/useUserStore';
 import { useAuthStore } from '../services/stores/useAuthStore';
+import { useReviewStore } from '../services/stores/useReviewStore';
 import type { CreateAnimalRequest, UpdateProfileRequest } from '../models/user.model';
 
 export const useUserPresenter = () => {
@@ -38,6 +39,8 @@ export const useUserPresenter = () => {
     updateCompetencies,
     clearPublicData,  
   } = useUserStore();
+
+  const { stats: reviewStats } = useReviewStore();
 
   // Определяем, свой ли это профиль
   const isOwnProfile = !userId || currentUser?.id === userId;
@@ -85,6 +88,13 @@ export const useUserPresenter = () => {
   const displayCompetencies = isOwnProfile ? competencies : publicCompetencies;
   const displayAnimals = isOwnProfile ? myAnimals : publicAnimals;
 
+  // Комбинируем статистику: свои задачи + данные из отзывов
+  const combinedVolunteerStats = {
+    completedTasksCount: isOwnProfile 
+      ? (volunteerStats?.completedTasksCount ?? 0)  // Свой профиль — из fetchVolunteerStats
+      : (reviewStats?.tasks_count ?? 0)              // Чужой профиль — из reviewStats
+  };
+
   const handleUpdateProfile = useCallback(async (data: UpdateProfileRequest) => {
     await updateProfile(data);
   }, [updateProfile]);
@@ -119,7 +129,7 @@ export const useUserPresenter = () => {
     preferences,
     competencies: displayCompetencies,
     myAnimals: displayAnimals,
-    volunteerStats,
+    volunteerStats: combinedVolunteerStats,
     updateProfile: handleUpdateProfile,
     deleteProfile: handleDeleteProfile,
     uploadAvatar: handleUploadAvatar,

@@ -17,6 +17,8 @@ import { VolunteerCompetencies } from './VolunteerCompetencies';
 import { AnimalList } from './AnimalList';
 import { AddAnimalDialog } from './AddAnimalDialog';
 import { EditProfileDialog } from './EditProfileDialog';
+import { ReviewList } from './ReviewList';
+import { useReviewStore } from '../../services/stores/useReviewStore';
 
 interface ProfileInfoProps {
   user: User;
@@ -50,6 +52,8 @@ export const ProfileInfo = ({
 }: ProfileInfoProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddAnimalOpen, setIsAddAnimalOpen] = useState(false);
+  
+  const reviewStats = useReviewStore((state) => state.stats);
 
   const handleUpdateProfile = async (data: UpdateProfileRequest) => {
     await onUpdate(data);
@@ -186,9 +190,19 @@ export const ProfileInfo = ({
 
           <Card sx={{ border: '1px solid #4C47D8', backgroundColor: '#F6F5FF' }}>
             <CardContent>
-              <VolunteerStats completedCount={volunteerStats?.completedTasksCount ?? 0} />
+              <VolunteerStats 
+                completedCount={volunteerStats?.completedTasksCount ?? 0}
+                ratingAvg={reviewStats?.rating_avg}
+                reviewsCount={reviewStats?.reviews_count}
+              />
             </CardContent>
           </Card>
+
+          {/* Новый блок с отзывами */}
+          <ReviewList 
+            volunteerId={user.id} 
+            isOwnProfile={isOwnProfile} 
+          />
         </>
       ) : (
         <>

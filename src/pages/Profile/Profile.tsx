@@ -4,6 +4,8 @@ import { useAuthPresenter } from '../../presenters/useAuthPresenter';
 import { useUserPresenter } from '../../presenters/useUserPresenter';
 import { ProfileInfo } from '../../components/profile/ProfileInfo';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
+import { useReviewStore } from '../../services/stores/useReviewStore';
+import { useEffect } from 'react';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -23,6 +25,15 @@ const Profile = () => {
     deleteAnimal,
     updateCompetencies,
   } = useUserPresenter();
+
+  const { fetchVolunteerStats: fetchReviewStats } = useReviewStore();
+
+  // Загружаем статистику отзывов при просмотре чужого профиля волонтёра
+  useEffect(() => {
+    if (user && !isOwnProfile && user.role === 'volunteer') {
+      fetchReviewStats(user.id);
+    }
+  }, [user, isOwnProfile, fetchReviewStats]);
 
   const handleLogout = async () => {
     await logout();

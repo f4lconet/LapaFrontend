@@ -151,3 +151,60 @@ export interface CreateAnimalRequest {
   name: string;
   type_id: number;
 }
+
+// Типы для отзывов
+export interface Review {
+  id: string;
+  comment: string;
+  rating: number;
+  task_id: string;
+  task_title: string;
+  volunteer_id: string;
+  volunteer_name: string;
+  reviewer_id: string;
+  reviewer_name: string;
+  created_at: string;
+}
+
+export interface ReviewListResponse {
+  items: Review[];
+  total: number;
+  next_offset: number;
+}
+
+export interface ReviewStats {
+  rating_avg: number;
+  reviews_count: number;
+  tasks_count: number;
+  user_id: string;
+}
+
+export interface RatingDistribution {
+  rating_1: number;
+  rating_2: number;
+  rating_3: number;
+  rating_4: number;
+  rating_5: number;
+}
+
+export interface DetailedStats {
+  basic: ReviewStats;
+  rating_distribution: RatingDistribution;
+  recent_reviews: Review[];
+}
+
+export interface CreateReviewRequest {
+  comment: string;
+  rating: number; // 1-5
+  task_id: string;
+  volunteer_id: string;
+}
+
+export interface UpdateReviewRequest {
+  comment?: string;
+  rating?: number; // 1-5
+}
+
+export interface TopVolunteer {
+  [key: string]: any;
+}
