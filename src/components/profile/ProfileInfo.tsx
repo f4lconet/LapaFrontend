@@ -9,7 +9,7 @@ import {
   Avatar,
   Grid,
 } from '@mui/material';
-import { Edit, Phone, LocationOn, Email, CheckCircle, Cancel, Chat } from '@mui/icons-material';
+import { Edit, Phone, LocationOn, Email, CheckCircle, Cancel, Chat, OpenInNew } from '@mui/icons-material';
 import type { User, UpdateProfileRequest, MyCompetencies, Animal, CreateAnimalRequest } from '../../models/user.model';
 import { RoleBadge } from './RoleBadge';
 import { VolunteerStats } from './VolunteerStats';
@@ -53,6 +53,7 @@ export const ProfileInfo = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddAnimalOpen, setIsAddAnimalOpen] = useState(false);
   
+  // Подписываемся на stats из стора напрямую — теперь будет реактивно
   const reviewStats = useReviewStore((state) => state.stats);
 
   const handleUpdateProfile = async (data: UpdateProfileRequest) => {
@@ -76,6 +77,13 @@ export const ProfileInfo = ({
       </Box>
     </Box>
   );
+
+  const handleOpenMap = () => {
+    if (user.locationLat != null && user.locationLng != null) {
+      const url = `https://yandex.ru/maps/?ll=${user.locationLng},${user.locationLat}&z=15&pt=${user.locationLng},${user.locationLat}`;
+      window.open(url, '_blank');
+    }
+  };
 
   const ProfileHeader = () => (
     <Box>
@@ -128,11 +136,30 @@ export const ProfileInfo = ({
             </Box>
 
             <Box sx={{ mt: 1 }}>
-              <InfoField
-                label="Локация"
-                value={user.locationText || 'Не указано'}
-                icon={<LocationOn fontSize="small" color="action" />}
-              />
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                <LocationOn fontSize="small" color="action" sx={{ mt: 0.5 }} />
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Локация
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="body1">
+                      {user.locationText || 'Не указано'}
+                    </Typography>
+                    {user.locationLat != null && user.locationLng != null && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<OpenInNew />}
+                        onClick={handleOpenMap}
+                        sx={{ ml: 1, whiteSpace: 'nowrap' }}
+                      >
+                        На карте
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+              </Box>
             </Box>
 
             {user.role === 'volunteer' && (
@@ -192,13 +219,13 @@ export const ProfileInfo = ({
             <CardContent>
               <VolunteerStats 
                 completedCount={volunteerStats?.completedTasksCount ?? 0}
-                ratingAvg={reviewStats?.rating_avg}
-                reviewsCount={reviewStats?.reviews_count}
+                ratingAvg={reviewStats?.rating_avg ?? null}
+                reviewsCount={reviewStats?.reviews_count ?? 0}
               />
             </CardContent>
           </Card>
 
-          {/* Новый блок с отзывами */}
+          {/* Блок с отзывами */}
           <ReviewList 
             volunteerId={user.id} 
             isOwnProfile={isOwnProfile} 

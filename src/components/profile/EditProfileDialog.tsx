@@ -12,9 +12,11 @@ import {
   Box,
   Avatar,
   Alert,
+  Typography,
 } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import { type User, type UpdateProfileRequest } from '../../models/user.model';
+import { LocationPicker } from './LocationPicker';
 
 interface EditProfileDialogProps {
   open: boolean;
@@ -38,11 +40,13 @@ export const EditProfileDialog = ({
     description: user.description || '',
     phone: user.phone || '',
     locationText: user.locationText || '',
+    locationLat: user.locationLat || undefined,
+    locationLng: user.locationLng || undefined,
     isUrgentAvailable: user.isUrgentAvailable || false,
   });
   const [avatarPreview, setAvatarPreview] = useState<string>(user.avatarUrl || '');
   const [isUploading, setIsUploading] = useState(false);
-   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -51,6 +55,8 @@ export const EditProfileDialog = ({
         description: user.description || '',
         phone: user.phone || '',
         locationText: user.locationText || '',
+        locationLat: user.locationLat || undefined,
+        locationLng: user.locationLng || undefined,
         isUrgentAvailable: user.isUrgentAvailable || false,
       });
       setAvatarPreview(user.avatarUrl || '');
@@ -71,17 +77,24 @@ export const EditProfileDialog = ({
     setFormData((prev) => ({ ...prev, [field]: e.target.checked }));
   };
 
+  const handleLocationChange = (lat: number, lng: number, address: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      locationLat: lat,
+      locationLng: lng,
+      locationText: address,
+    }));
+  };
+
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Проверка размера файла (максимум 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setUploadError('Файл слишком большой. Максимальный размер 5MB');
       return;
     }
 
-    // Проверка типа файла
     if (!file.type.startsWith('image/')) {
       setUploadError('Пожалуйста, выберите изображение');
       return;
@@ -111,8 +124,13 @@ export const EditProfileDialog = ({
     }
   };
 
+  const initialCoordinates: [number, number] | null = 
+    formData.locationLat != null && formData.locationLng != null
+      ? [formData.locationLat, formData.locationLng]
+      : null;
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Редактирование профиля</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ mt: 1 }}>
@@ -171,13 +189,17 @@ export const EditProfileDialog = ({
             placeholder="+7 XXX XXX-XX-XX"
           />
           
-          <TextField
-            fullWidth
-            label="Местоположение"
-            value={formData.locationText || ''}
-            onChange={handleChange('locationText')}
-            placeholder="Город, район"
-          />
+          {/* Location Picker с картой */}
+          <Box>
+            <Typography variant="subtitle2" gutterBottom>
+              Местоположение
+            </Typography>
+            <LocationPicker
+              initialCoordinates={initialCoordinates}
+              initialAddress={formData.locationText || ''}
+              onLocationChange={handleLocationChange}
+            />
+          </Box>
           
           <FormControlLabel
             control={
