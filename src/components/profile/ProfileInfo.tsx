@@ -32,6 +32,7 @@ interface ProfileInfoProps {
   onUploadAvatar: (file: File) => Promise<string>;
   onChat?: () => void;
   onAddAnimal?: (data: CreateAnimalRequest) => Promise<void>;
+  onUpdateAnimal?: (animalId: string, data: Partial<CreateAnimalRequest>) => Promise<void>;
   onDeleteAnimal?: (id: string) => Promise<void>;
   onCompetenciesUpdate?: () => Promise<void>;
 }
@@ -47,11 +48,14 @@ export const ProfileInfo = ({
   onUploadAvatar,
   onChat,
   onAddAnimal,
+  onUpdateAnimal,
   onDeleteAnimal,
   onCompetenciesUpdate,
 }: ProfileInfoProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddAnimalOpen, setIsAddAnimalOpen] = useState(false);
+
+  const [editingAnimal, setEditingAnimal] = useState<Animal | null>(null);
   
   // Подписываемся на stats из стора напрямую — теперь будет реактивно
   const reviewStats = useReviewStore((state) => state.stats);
@@ -65,6 +69,7 @@ export const ProfileInfo = ({
       await onAddAnimal(data);
     }
   };
+
 
   const InfoField = ({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) => (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -252,6 +257,10 @@ export const ProfileInfo = ({
               isLoading={isLoading}
               isOwnProfile={isOwnProfile}
               onAdd={isOwnProfile ? () => setIsAddAnimalOpen(true) : undefined}
+              onEdit={isOwnProfile ? (animal) => {
+                setEditingAnimal(animal);
+                setIsAddAnimalOpen(true);
+              } : undefined}
               onDelete={isOwnProfile ? onDeleteAnimal : undefined}
             />
           )}
@@ -270,8 +279,13 @@ export const ProfileInfo = ({
       {onAddAnimal && (
         <AddAnimalDialog
           open={isAddAnimalOpen}
-          onClose={() => setIsAddAnimalOpen(false)}
+          onClose={() => {
+            setIsAddAnimalOpen(false);
+            setEditingAnimal(null);
+          }}
           onAdd={handleAddAnimal}
+          onUpdate={onUpdateAnimal}
+          editingAnimal={editingAnimal}
         />
       )}
     </Stack>

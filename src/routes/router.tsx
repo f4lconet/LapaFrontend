@@ -29,19 +29,18 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>)
 
 export const router = createBrowserRouter([
   {
-    path: ROUTES.FEED,
-    children: [
-      { index: true, element: withSuspense(Feed) },
-    ],
-  },
-
-  {
     children: [
       {
         element: <AuthLayout />,
         children: [
           { path: ROUTES.LOGIN, element: withSuspense(Login) },
           { path: ROUTES.REGISTER, element: withSuspense(Register) },
+          {
+            path: ROUTES.FEED,
+            children: [
+              { index: true, element: withSuspense(Feed) },
+            ],
+          },
         ],
       },
     ],

@@ -34,6 +34,7 @@ export const useUserPresenter = () => {
     fetchMyAnimals,
     fetchVolunteerStats,
     addAnimal,
+    updateAnimal,
     deleteAnimal,
     clearVolunteerData,
     updateCompetencies,
@@ -113,6 +114,12 @@ export const useUserPresenter = () => {
     }
   }, [addAnimal, isOwnProfile]);
 
+  const handleUpdateAnimal = useCallback(async (animalId: string, data: Partial<CreateAnimalRequest>) => {
+    if (isOwnProfile) {
+      await updateAnimal(animalId, data);
+    }
+  }, [updateAnimal, isOwnProfile]);
+
   const handleDeleteAnimal = useCallback(async (id: string) => {
     if (isOwnProfile) {
       await deleteAnimal(id);
@@ -136,6 +143,7 @@ export const useUserPresenter = () => {
     setEditing,
     clearError,
     addAnimal: isOwnProfile ? handleAddAnimal : undefined,
+    updateAnimal: isOwnProfile ? handleUpdateAnimal : undefined,
     deleteAnimal: isOwnProfile ? handleDeleteAnimal : undefined,
     updateCompetencies: isOwnProfile ? updateCompetencies : undefined,
   };

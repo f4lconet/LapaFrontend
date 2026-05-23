@@ -22,6 +22,7 @@ const Profile = () => {
     updateProfile,
     uploadAvatar,
     addAnimal,
+    updateAnimal,
     deleteAnimal,
     updateCompetencies,
   } = useUserPresenter();
@@ -81,6 +82,7 @@ const Profile = () => {
         onChat={!isOwnProfile ? handleChat : undefined}
         onCompetenciesUpdate={updateCompetencies}
         onAddAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? addAnimal : undefined}
+        onUpdateAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? updateAnimal : undefined}
         onDeleteAnimal={isOwnProfile && (user.role === 'curator' || user.role === 'organization') ? deleteAnimal : undefined}
       />
     </Container>

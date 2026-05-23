@@ -33,10 +33,12 @@ interface UserStore {
   fetchMyAnimals: () => Promise<void>;
   fetchVolunteerStats: () => Promise<void>;
   addAnimal: (data: CreateAnimalRequest) => Promise<void>;
+  updateAnimal: (animalId: string, data: Partial<CreateAnimalRequest>) => Promise<void>;
   deleteAnimal: (animalId: string) => Promise<void>;
   clearVolunteerData: () => void; // для выхода из профиля
   updateCompetencies: () => Promise<void>; // обновление компетенций после редактирования
   clearPublicData: () => void;
+  
 }
 
 
@@ -199,6 +201,20 @@ export const useUserStore = create<UserStore>((set, get) => ({
       set({ myAnimals: [...get().myAnimals, newAnimal], isLoading: false });
     } catch (error: any) {
       set({ error: error.response?.data?.message || 'Ошибка добавления животного', isLoading: false });
+      throw error;
+    }
+  },
+
+  updateAnimal: async (animalId: string, data: Partial<CreateAnimalRequest>) => {
+    set({ isLoading: true, error: null });
+    try {
+      const updatedAnimal = await animalService.updateAnimal(animalId, data);
+      set({ 
+        myAnimals: get().myAnimals.map(a => a.id === animalId ? updatedAnimal : a),
+        isLoading: false 
+      });
+    } catch (error: any) {
+      set({ error: error.response?.data?.message || 'Ошибка обновления животного', isLoading: false });
       throw error;
     }
   },

@@ -16,7 +16,7 @@ import {
   FormGroup,
   Checkbox,
 } from '@mui/material';
-import { Search, Business, Phone, Email, LocationOn } from '@mui/icons-material';
+import { Search, Business, Phone, Email, LocationOn, OpenInNew } from '@mui/icons-material';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/api/user.service';
@@ -272,6 +272,20 @@ const OrganizationsPage = () => {
                           <Typography variant="body2" sx={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.875rem' }}>
                             {org.locationText}
                           </Typography>
+                          {org.locationLat != null && org.locationLng != null && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const url = `https://yandex.ru/maps/?ll=${org.locationLng},${org.locationLat}&z=15&pt=${org.locationLng},${org.locationLat}`;
+                                window.open(url, '_blank');
+                              }}
+                              sx={{ minWidth: 'auto', px: 0.5, ml: 0.5 }}
+                            >
+                              <OpenInNew fontSize="small" />
+                            </Button>
+                          )}
                         </Box>
                       </Box>
                     )}
