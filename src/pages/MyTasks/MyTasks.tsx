@@ -11,7 +11,7 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { Add, Assignment, CheckCircle, Archive } from '@mui/icons-material';
+import { Add, Assignment, Archive } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
 import { TaskCard } from '../../components/tasks/TaskCard';

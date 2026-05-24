@@ -1,65 +1,89 @@
 import { useCallback } from 'react';
 import { useKnowledgeStore } from '../services/stores/useKnowledgeStore';
-import type { CreateKnowledgeRequest, UpdateKnowledgeRequest } from '../models/knowledge.model';
+import type { CreateArticleDto, UpdateArticleDto, FilterOptions } from '../models/knowledge.model';
 
 export const useKnowledgePresenter = () => {
   const {
     articles,
-    currentArticle,
-    isLoading,
+    featuredArticle, 
+    total,                
+    loading,              
     error,
-    totalArticles,
+    categories,
+    tags,
+    filters,
+    setFilters,
     fetchArticles,
-    fetchArticleById,
     createArticle,
     updateArticle,
     deleteArticle,
-    searchArticles,
-    loadMoreArticles,
+    uploadImage,
+    createCategory,
+    toggleFilterModal,
     clearError,
   } = useKnowledgeStore();
 
-  const handleFetchArticles = useCallback(async (limit?: number, offset?: number) => {
-    await fetchArticles(limit, offset);
-  }, [fetchArticles]);
+  // fetchArticles принимает фильтры, а не отдельные параметры
+  const handleFetchArticles = useCallback(async (filterParams?: Partial<FilterOptions>) => {
+    if (filterParams) {
+      setFilters(filterParams);
+    } else {
+      await fetchArticles();
+    }
+  }, [fetchArticles, setFilters]);
 
-  const handleFetchArticleById = useCallback(async (articleId: string) => {
-    await fetchArticleById(articleId);
-  }, [fetchArticleById]);
+  // Получение статьи по ID (если нет в store, берём из массива)
+  const handleGetArticleById = useCallback((articleId: string) => {
+    return articles.find(a => a.id === articleId) || null;
+  }, [articles]);
 
-  const handleCreateArticle = useCallback(async (data: CreateKnowledgeRequest) => {
+  // Создание статьи
+  const handleCreateArticle = useCallback(async (data: CreateArticleDto) => {
     await createArticle(data);
   }, [createArticle]);
 
-  const handleUpdateArticle = useCallback(async (articleId: string, data: UpdateKnowledgeRequest) => {
+  // Обновление статьи
+  const handleUpdateArticle = useCallback(async (articleId: string, data: UpdateArticleDto) => {
     await updateArticle(articleId, data);
   }, [updateArticle]);
 
+  // Удаление статьи
   const handleDeleteArticle = useCallback(async (articleId: string) => {
     await deleteArticle(articleId);
   }, [deleteArticle]);
 
-  const handleSearchArticles = useCallback(async (query: string, limit?: number, offset?: number) => {
-    await searchArticles(query, limit, offset);
-  }, [searchArticles]);
+  // Поиск статей (через фильтры)
+  const handleSearchArticles = useCallback(async (query: string) => {
+    setFilters({ search: query, offset: 0 });
+    // fetchArticles вызовется автоматически в setFilters
+  }, [setFilters]);
 
+  // Загрузка следующей страницы
   const handleLoadMoreArticles = useCallback(async () => {
-    await loadMoreArticles();
-  }, [loadMoreArticles]);
+    const newOffset = (filters.offset || 0) + (filters.limit || 10);
+    setFilters({ offset: newOffset });
+  }, [filters, setFilters]);
 
   return {
     articles,
-    currentArticle,
-    isLoading,
+    featuredArticle,
+    currentArticle: featuredArticle, // для обратной совместимости
+    isLoading: loading,
     error,
-    totalArticles,
+    totalArticles: total,
+    categories,
+    tags,
+    filters,
     fetchArticles: handleFetchArticles,
-    fetchArticleById: handleFetchArticleById,
+    fetchArticleById: handleGetArticleById,
     createArticle: handleCreateArticle,
     updateArticle: handleUpdateArticle,
     deleteArticle: handleDeleteArticle,
     searchArticles: handleSearchArticles,
     loadMoreArticles: handleLoadMoreArticles,
+    uploadImage,
+    createCategory,
+    toggleFilterModal,
     clearError,
   };
 };

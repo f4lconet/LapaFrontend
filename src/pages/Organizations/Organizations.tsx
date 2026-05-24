@@ -7,14 +7,9 @@ import {
   InputAdornment,
   CircularProgress,
   Alert,
-  Chip,
   Card,
   Button,
   Stack,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  Checkbox,
 } from '@mui/material';
 import { Search, Business, Phone, Email, LocationOn, OpenInNew } from '@mui/icons-material';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
@@ -28,7 +23,7 @@ const OrganizationsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showInactive, setShowInactive] = useState(false);
+  const [showInactive] = useState(false);
   const [offset, setOffset] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);

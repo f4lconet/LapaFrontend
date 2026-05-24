@@ -20,7 +20,7 @@ import { PhotoCamera } from '@mui/icons-material';
 import { type AnimalType, type CreateAnimalRequest, type Animal } from '../../models/user.model';
 import { volunteerService } from '../../services/api/volunteer.service';
 import { animalService } from '../../services/api/animal.service';
-import { LocationPicker } from './LocationPicker';
+import { LocationPicker } from '../location/LocationPicker';
 
 interface AddAnimalDialogProps {
   open: boolean;
