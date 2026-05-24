@@ -3,7 +3,7 @@ import { Box, List, ListItem, ListItemButton, Avatar, Typography, CircularProgre
 import { useChatPresenter } from '../../presenters/useChatPresenter'
 import { useAuthStore } from '../../services/stores/useAuthStore'
 import type { Chat } from '../../models/chat.model'
-import './Chat.scss'
+import '../../pages/Chat/Chat.scss'
 
 export const ChatList = () => {
   const { chats, currentChat, isLoading, error, loadChats, chooseChat, clearError } = useChatPresenter()

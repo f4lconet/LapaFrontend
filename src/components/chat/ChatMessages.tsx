@@ -4,7 +4,7 @@ import SendIcon from '@mui/icons-material/Send'
 import { useChatPresenter } from '../../presenters/useChatPresenter'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../routes/routes'
-import './Chat.scss'
+import '../../pages/Chat/Chat.scss'
 
 interface ChatMessagesProps {
   currentUserId?: string
