@@ -108,6 +108,7 @@ export const AddTaskDialog = ({
             getOptionLabel={(option) => option.name}
             value={animals.find((a) => a.id === formData.animal_id) || null}
             onChange={(_, newValue) => setFormData({ ...formData, animal_id: newValue?.id || '' })}
+            loading={isLoadingAnimals}
             renderInput={(params) => (
               <TextField {...params} label="Животное *" required/>
             )}

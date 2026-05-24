@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography, Box, Rating, Container } from '@mui/material';
+import { Typography, Box, Rating } from '@mui/material';
 import { AssignmentTurnedIn, Star } from '@mui/icons-material';
 
 interface VolunteerStatsProps {

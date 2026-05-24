@@ -9,7 +9,7 @@ import {
   Avatar,
   Grid,
 } from '@mui/material';
-import { Edit, Phone, LocationOn, Email, CheckCircle, Cancel, Chat, OpenInNew, EditOutlined, LocationOnOutlined, Done } from '@mui/icons-material';
+import { Cancel, Chat, EditOutlined, LocationOnOutlined, Done } from '@mui/icons-material';
 import type { User, UpdateProfileRequest, MyCompetencies, Animal, CreateAnimalRequest } from '../../models/user.model';
 import { RoleBadge } from './RoleBadge';
 import { VolunteerStats } from './VolunteerStats';

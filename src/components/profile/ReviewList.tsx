@@ -40,7 +40,6 @@ export const ReviewList = ({ volunteerId, isOwnProfile }: ReviewListProps) => {
   const { user: currentUser } = useAuthStore();
   const {
     reviews,
-    stats,
     isLoading,
     error,
     fetchVolunteerReviews,

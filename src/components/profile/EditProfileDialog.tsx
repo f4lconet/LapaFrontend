@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import { type User, type UpdateProfileRequest } from '../../models/user.model';
-import { LocationPicker } from './LocationPicker';
+import { LocationPicker } from '../location/LocationPicker';
 
 interface EditProfileDialogProps {
   open: boolean;
