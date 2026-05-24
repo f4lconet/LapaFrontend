@@ -42,7 +42,7 @@ class WebSocketService {
             token: authToken
           },
           path: '/socket.io/',
-          withCredentials: false,
+          withCredentials: true,
         }
 
         this.socket = io(SOCKET_URL, options)
