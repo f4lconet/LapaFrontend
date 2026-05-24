@@ -29,7 +29,7 @@ class WebSocketService {
           return
         }
 
-        console.log('WebSocket connecting to:', SOCKET_URL)
+        console.log('WebSocket connecting to:')
         
         const options = {
           transports: ['websocket', 'polling'],
@@ -56,7 +56,7 @@ class WebSocketService {
 
         this.socket.on('connect', () => {
           clearTimeout(timeout)
-          console.log('✅ WebSocket connected successfully, socket id:', this.socket?.id)
+          console.log('✅ WebSocket connected successfully')
           this.reconnectAttempts = 0
           this.connectionPromise = null
           resolve()
