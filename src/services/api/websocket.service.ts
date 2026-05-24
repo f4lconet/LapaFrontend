@@ -32,7 +32,7 @@ class WebSocketService {
         console.log('WebSocket connecting to:')
         
         const options = {
-          transports: ['websocket', 'polling'],
+          transports: ['polling', 'websocket'],
           reconnection: true,
           reconnectionAttempts: this.maxReconnectAttempts,
           reconnectionDelay: 1000,
@@ -40,7 +40,9 @@ class WebSocketService {
           timeout: 20000,
           auth: {
             token: authToken
-          }
+          },
+          path: '/socket.io/',
+          withCredentials: false,
         }
 
         this.socket = io(SOCKET_URL, options)
