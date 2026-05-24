@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Box, Avatar, Typography, TextField, IconButton, CircularProgress, Alert, Card } from '@mui/material'
+import { Box, Avatar, Typography, TextField, IconButton, CircularProgress, Alert } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import { useChatPresenter } from '../../presenters/useChatPresenter'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../routes/routes'
-import type { ChatMessage } from '../../models/chat.model'
 import './Chat.scss'
 
 interface ChatMessagesProps {

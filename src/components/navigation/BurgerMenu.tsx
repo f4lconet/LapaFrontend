@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { IconButton, Drawer, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography } from '@mui/material'
-import { Home as HomeIcon, Person as PersonIcon, Share as ShareIcon, Logout as LogoutIcon, Task, Pets, Feed, Work, CalendarMonth, Chat, Book } from '@mui/icons-material'
+import { Home as HomeIcon, Person as PersonIcon, Logout as LogoutIcon, Task, Pets, Feed, Work, CalendarMonth, Chat, Book } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ROUTES } from '../../routes/routes'
 import OpenDrawerIcon from '../../assets/images/drawer-open-button.svg?react'
@@ -99,7 +99,7 @@ export const BurgerMenu = ({ onLogout }: BurgerMenuProps) => {
           paper: {
             sx: {
               width: 321,
-              height: 620,
+              height: 670,
               top: 0,
               right: 0,
               bottom: 'auto',

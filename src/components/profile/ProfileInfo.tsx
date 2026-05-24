@@ -9,7 +9,7 @@ import {
   Avatar,
   Grid,
 } from '@mui/material';
-import { Edit, Phone, LocationOn, Email, CheckCircle, Cancel, Chat, OpenInNew } from '@mui/icons-material';
+import { Edit, Phone, LocationOn, Email, CheckCircle, Cancel, Chat, OpenInNew, EditOutlined, LocationOnOutlined, Done } from '@mui/icons-material';
 import type { User, UpdateProfileRequest, MyCompetencies, Animal, CreateAnimalRequest } from '../../models/user.model';
 import { RoleBadge } from './RoleBadge';
 import { VolunteerStats } from './VolunteerStats';
@@ -94,20 +94,20 @@ export const ProfileInfo = ({
     <Box>
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
-          <Avatar src={user.avatarUrl} sx={{ width: 80, height: 80, flexShrink: 0 }}>
+          <Avatar src={user.avatarUrl} sx={{ width: 129, height: 129, flexShrink: 0 }}>
             {user.name?.[0]?.toUpperCase()}
           </Avatar>
           <Box sx={{ flex: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-              <Typography variant="h5">{user.name}</Typography>
+              <Typography variant="h4" sx={{fontWeight: 700, fontSize: 48 }}>{user.name}</Typography>
               {isOwnProfile && (
                 <Button
-                  size="small"
-                  startIcon={<Edit />}
                   onClick={() => setIsEditDialogOpen(true)}
-                  variant="outlined"
+                  variant="text"
                 >
-                  Редактировать
+                  <EditOutlined 
+                    sx={{maxHeight: 43, maxWidth: 43, width: '100%', height: '100%', color: 'rgba(49, 40, 114, 1)' }}
+                  />
                 </Button>
               )}
               {!isOwnProfile && onChat && (
@@ -116,7 +116,6 @@ export const ProfileInfo = ({
                   startIcon={<Chat />}
                   onClick={onChat}
                   variant="contained"
-                  color="primary"
                 >
                   Написать сообщение
                 </Button>
@@ -128,7 +127,7 @@ export const ProfileInfo = ({
               <InfoField
                 label="Эл. почта"
                 value={user.email}
-                icon={<Email fontSize="small" color="action" />}
+                icon={undefined}
               />
             </Box>
 
@@ -136,13 +135,12 @@ export const ProfileInfo = ({
               <InfoField
                 label="Телефон"
                 value={user.phone || 'Не указан'}
-                icon={<Phone fontSize="small" color="action" />}
+                icon={undefined}
               />
             </Box>
 
             <Box sx={{ mt: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                <LocationOn fontSize="small" color="action" sx={{ mt: 0.5 }} />
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     Локация
@@ -155,11 +153,10 @@ export const ProfileInfo = ({
                       <Button
                         size="small"
                         variant="outlined"
-                        startIcon={<OpenInNew />}
                         onClick={handleOpenMap}
-                        sx={{ ml: 1, whiteSpace: 'nowrap' }}
+                        sx={{ ml: 1, whiteSpace: 'nowrap', color: 'rgba(122, 0, 118, 1)', borderColor: 'rgba(122, 0, 118, 1)' }}
                       >
-                        На карте
+                        <LocationOnOutlined/>
                       </Button>
                     )}
                   </Box>
@@ -172,12 +169,12 @@ export const ProfileInfo = ({
                 <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   {user.isUrgentAvailable ? (
                     <>
-                      <CheckCircle color="success" fontSize="small" />
+                      <Done sx={{color: 'rgba(122, 0, 118, 1)'}} fontSize="medium" />
                       Готов помогать в срочных ситуациях
                     </>
                   ) : (
                     <>
-                      <Cancel color="action" fontSize="small" />
+                      <Cancel sx={{color: 'rgba(122, 0, 118, 1)'}} fontSize="medium" />
                       Не готов к срочным ситуациям
                     </>
                   )}
@@ -198,9 +195,9 @@ export const ProfileInfo = ({
 
           <Grid container spacing={2} sx={{ width: '100%' }}>
             <Grid sx={{ xs: 12, md: 4, flex: '1 1 calc(33.333% - 11px)', minWidth: '110px' }}>
-              <Card sx={{ border: '1px solid #4C47D8', backgroundColor: '#F6F5FF', height: '100%', minHeight: 300 }}>
+              <Card sx={{ border: '3px solid rgba(49, 40, 114, 1)', backgroundColor: 'rgba(239, 237, 255, 1)', borderRadius: '34px',  height: '100%', minHeight: 300 }}>
                 <CardContent>
-                  <Typography variant="subtitle1" gutterBottom>
+                  <Typography variant="subtitle1" gutterBottom sx={{ fontSize: 24, fontWeight: 700}}>
                     О себе
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: user.description ? 'text.primary' : 'text.secondary' }}>
@@ -220,7 +217,7 @@ export const ProfileInfo = ({
             </Grid>
           </Grid>
 
-          <Card sx={{ border: '1px solid #4C47D8', backgroundColor: '#F6F5FF' }}>
+          <Card sx={{ border: '3px solid rgba(49, 40, 114, 1)', backgroundColor: 'rgba(239, 237, 255, 1)', borderRadius: '34px', }}>
             <CardContent>
               <VolunteerStats 
                 completedCount={volunteerStats?.completedTasksCount ?? 0}
@@ -240,9 +237,9 @@ export const ProfileInfo = ({
         <>
           <ProfileHeader />
 
-          <Card sx={{ border: '1px solid #4C47D8', backgroundColor: '#F6F5FF' }}>
+          <Card sx={{ border: '3px solid rgba(49, 40, 114, 1)', backgroundColor: 'rgba(239, 237, 255, 1)', borderRadius: '34px', minHeight: 200 }}>
             <CardContent>
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography variant="subtitle1" gutterBottom sx={{ fontSize: 24, fontWeight: 700}}>
                 О себе
               </Typography>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: user.description ? 'text.primary' : 'text.secondary' }}>

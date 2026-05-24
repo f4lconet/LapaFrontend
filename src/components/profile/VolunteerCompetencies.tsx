@@ -115,10 +115,10 @@ export const VolunteerCompetencies = ({ competencies, isLoading, isOwnProfile = 
 
   return (
     <>
-      <Card sx={{ border: '1px solid #4C47D8', backgroundColor: '#F6F5FF' }}>
+      <Card sx={{ border: '3px solid rgba(49, 40, 114, 1)', backgroundColor: 'rgba(239, 237, 255, 1)', borderRadius: '34px', }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6">
+            <Typography variant="subtitle1" gutterBottom sx={{ fontSize: 24, fontWeight: 700}}>
               Мои компетенции
             </Typography>
             {isOwnProfile && (

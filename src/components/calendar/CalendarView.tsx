@@ -48,7 +48,7 @@ export const CalendarView = ({
       titleFormat={{ year: 'numeric', month: 'long' }}
       weekText="Неделя"
       allDayText="Весь день"
-      moreLinkText={(num) => `+ ещё ${num}`}
+      moreLinkText={(num: number) => `+ ещё ${num}`}
       noEventsText="Нет событий"
       dayHeaderFormat={{ weekday: 'long' }}
       views={{

@@ -44,7 +44,7 @@ const Calendar = () => {
   }, [currentYear, currentMonth, loadMonthEvents])
 
   const calendarEvents = currentMonthEvents
-    ? Object.entries(currentMonthEvents).flatMap(([day, events]) =>
+    ? Object.entries(currentMonthEvents).flatMap(([_, events]) =>
         events.map((event) => ({
           id: event.id,
           title: event.title,

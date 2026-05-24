@@ -109,7 +109,7 @@ export const AddTaskDialog = ({
             value={animals.find((a) => a.id === formData.animal_id) || null}
             onChange={(_, newValue) => setFormData({ ...formData, animal_id: newValue?.id || '' })}
             renderInput={(params) => (
-              <TextField {...params} label="Животное *" required loading={isLoadingAnimals} />
+              <TextField {...params} label="Животное *" required/>
             )}
             fullWidth
           />
@@ -138,7 +138,7 @@ export const AddTaskDialog = ({
             type="datetime-local"
             value={formData.due_time}
             onChange={(e) => setFormData({ ...formData, due_time: e.target.value })}
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: {shrink: true } }}
             fullWidth
           />
 

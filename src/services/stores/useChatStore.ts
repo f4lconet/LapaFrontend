@@ -3,9 +3,7 @@ import { chatService } from '../api/chat.service'
 import { webSocketService } from '../api/websocket.service'
 import type {
   Chat,
-  ChatListResponse,
   ChatMessage,
-  ChatMessagesResponse,
   CreateChatRequest,
   CreateMessageRequest,
 } from '../../models/chat.model'
