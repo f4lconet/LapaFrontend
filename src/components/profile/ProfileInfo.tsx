@@ -93,17 +93,18 @@ export const ProfileInfo = ({
   const ProfileHeader = () => (
     <Box>
       <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 6, mb: 2 }}>
           <Avatar src={user.avatarUrl} sx={{ width: 129, height: 129, flexShrink: 0 }}>
             {user.name?.[0]?.toUpperCase()}
           </Avatar>
           <Box sx={{ flex: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap', mt: 3 }}>
               <Typography variant="h4" sx={{fontWeight: 700, fontSize: 48 }}>{user.name}</Typography>
               {isOwnProfile && (
                 <Button
                   onClick={() => setIsEditDialogOpen(true)}
                   variant="text"
+                  sx={{ position: 'relative', bottom: 25}}
                 >
                   <EditOutlined 
                     sx={{maxHeight: 43, maxWidth: 43, width: '100%', height: '100%', color: 'rgba(49, 40, 114, 1)' }}
@@ -116,6 +117,7 @@ export const ProfileInfo = ({
                   startIcon={<Chat />}
                   onClick={onChat}
                   variant="contained"
+                  sx={{backgroundColor: 'rgba(93, 75, 216, 1)', color: 'rgba(255, 255, 255, 1)', borderRadius: '20px' }}
                 >
                   Написать сообщение
                 </Button>
@@ -152,11 +154,12 @@ export const ProfileInfo = ({
                     {user.locationLat != null && user.locationLng != null && (
                       <Button
                         size="small"
-                        variant="outlined"
+                        variant="contained"
                         onClick={handleOpenMap}
-                        sx={{ ml: 1, whiteSpace: 'nowrap', color: 'rgba(122, 0, 118, 1)', borderColor: 'rgba(122, 0, 118, 1)' }}
+                        startIcon={<LocationOnOutlined/>}
+                        sx={{ ml: 1, whiteSpace: 'nowrap', color: 'rgba(255, 255, 255, 1)', backgroundColor: 'rgba(93, 75, 216, 1)', borderRadius: '20px' }}
                       >
-                        <LocationOnOutlined/>
+                        На карте
                       </Button>
                     )}
                   </Box>

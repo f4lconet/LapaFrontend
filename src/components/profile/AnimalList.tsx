@@ -34,8 +34,8 @@ export const AnimalList = ({ animals, isLoading, isOwnProfile, onAdd, onEdit, on
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6">Животные</Typography>
         {isOwnProfile && onAdd && (
-          <Button startIcon={<Add />} variant="outlined" size="small" onClick={onAdd}>
-            Добавить
+          <Button startIcon={<Add />} variant="contained" size="small" onClick={onAdd}>
+            Добавить животное
           </Button>
         )}
       </Box>
@@ -52,7 +52,8 @@ export const AnimalList = ({ animals, isLoading, isOwnProfile, onAdd, onEdit, on
                 animal={animal} 
                 onDelete={onDelete} 
                 onEdit={onEdit}
-                isOwnProfile={isOwnProfile} 
+                isOwnProfile={isOwnProfile}
+                showCuratorButton={false} 
               />
             </Grid>
           ))}

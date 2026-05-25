@@ -11,6 +11,7 @@ import { AdminAlert } from '../../components/calendar/AdminAlert'
 import { CalendarView } from '../../components/calendar/CalendarView'
 import { EventModal } from '../../components/calendar/EventModal'
 import { CreateEventDialog } from '../../components/calendar/CreateEventDialog'
+import './Calendar.scss'
 
 const Calendar = () => {
   const { 

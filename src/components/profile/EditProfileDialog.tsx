@@ -12,7 +12,6 @@ import {
   Box,
   Avatar,
   Alert,
-  Typography,
 } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import { type User, type UpdateProfileRequest } from '../../models/user.model';
@@ -148,6 +147,7 @@ export const EditProfileDialog = ({
               size="small"
               startIcon={<PhotoCamera />}
               disabled={isUploading}
+              sx={{ color: 'rgba(93, 75, 216, 1)', borderColor: 'rgba(93, 75, 216, 1)', borderRadius: '20px'}}
             >
               {isUploading ? 'Загрузка...' : 'Сменить аватар'}
               <input
@@ -191,9 +191,6 @@ export const EditProfileDialog = ({
           
           {/* Location Picker с картой */}
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
-              Местоположение
-            </Typography>
             <LocationPicker
               initialCoordinates={initialCoordinates}
               initialAddress={formData.locationText || ''}
@@ -213,11 +210,15 @@ export const EditProfileDialog = ({
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Отмена</Button>
+        <Button 
+          onClick={onClose}
+          sx={{borderRadius: '10px'}}
+        >Отмена</Button>
         <Button 
           onClick={handleSubmit} 
           variant="contained" 
           disabled={isLoading || isUploading || !formData.name?.trim()}
+          sx={{borderRadius: '10px'}}
         >
           Сохранить
         </Button>

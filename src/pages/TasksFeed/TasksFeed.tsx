@@ -10,11 +10,11 @@ import {
   Alert,
   Checkbox,
   FormControlLabel,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Button,
+  Popover,
+  FormGroup,
 } from '@mui/material';
-import { Search, ExpandMore, TrendingUp } from '@mui/icons-material';
+import { Search, Tune } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
 import { TaskCard } from '../../components/tasks/TaskCard';
@@ -47,6 +47,7 @@ const TasksFeedPage = () => {
   const [hasMoreRecommended, setHasMoreRecommended] = useState(true);
   const observerTarget = useRef<HTMLDivElement>(null);
   const recommendedTarget = useRef<HTMLDivElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const isVolunteer = user?.role === 'volunteer';
 
@@ -198,38 +199,82 @@ const TasksFeedPage = () => {
       )}
 
       {/* Search and Filters */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <Stack spacing={2}>
-          <TextField
-            fullWidth
-            placeholder="Поиск по названию, описанию или животному..."
-            slotProps={{
-              input: {
-                startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
-              }
-            }}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'flex-start' }}>
+        <TextField
+          fullWidth
+          placeholder="Поиск по названию, описанию или животному..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />
+            }
+          }}
+        />
 
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMore />}>
-              <Typography>Фильтры</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={showUrgentOnly}
-                    onChange={(e) => setShowUrgentOnly(e.target.checked)}
-                  />
-                }
-                label="Только срочные задачи"
-              />
-            </AccordionDetails>
-          </Accordion>
-        </Stack>
-      </Paper>
+        <Button
+          variant="contained"
+          startIcon={<Tune />}
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+          sx={{ 
+            flexShrink: 0, 
+            height: 56,
+            px: 3,
+            borderRadius: '12px',
+            backgroundColor: 'primary.main',
+            '&:hover': { backgroundColor: 'primary.dark' },
+          }}
+        >
+          Фильтры
+          {showUrgentOnly && (
+            <Typography component="span" sx={{ ml: 1, fontSize: '0.75rem', opacity: 0.8 }}>
+              (1)
+            </Typography>
+          )}
+        </Button>
+
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={() => setAnchorEl(null)}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          slotProps={{
+            paper: {
+              sx: {
+                mt: 1,
+                borderRadius: '12px',
+                minWidth: 250,
+                p: 2,
+              }
+            }
+            
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+            Фильтры
+          </Typography>
+          
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={showUrgentOnly}
+                  onChange={(e) => setShowUrgentOnly(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label="Только срочные задачи"
+            />
+          </FormGroup>
+        </Popover>
+      </Box>
 
       {isLoading && filteredTasks.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
@@ -239,11 +284,8 @@ const TasksFeedPage = () => {
         <>
           {/* Recommended Tasks for Volunteers */}
           {isVolunteer && filteredRecommended.length > 0 && (
-            <Box sx={{ mb: 4 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <TrendingUp color="primary" />
-                <Typography variant="h6">Рекомендуемые для вас</Typography>
-              </Box>
+            <Box sx={{ mb: 4 }}> 
+              <Typography variant="h6" sx={{textAlign: 'center'}}>Рекомендуемые для вас</Typography>
 
               <Stack spacing={2} sx={{ mb: 2, alignItems: 'center' }}>
                 {filteredRecommended.map((task) => (

@@ -199,7 +199,7 @@ export const LocationPicker = ({
                     {isSearching ? (
                     <CircularProgress size={20} />
                     ) : (
-                    <Button onClick={handleLocateMe} disabled={isLocating} sx={{ minWidth: 'auto', p: 0.5 }}>
+                    <Button onClick={handleLocateMe} disabled={isLocating} sx={{ minWidth: 'auto', p: 0.5, color: 'rgba(93, 75, 216, 1)' }}>
                         {isLocating ? <CircularProgress size={20} /> : <MyLocation />}
                     </Button>
                     )}

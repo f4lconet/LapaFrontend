@@ -184,13 +184,12 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
 
   fetchVolunteerStats: async () => {
-    // Пока заглушка, но вызовет реальный API
     try {
-      const count = await taskService.getCompletedTasksCount();
-      set({ volunteerStats: { completedTasksCount: count } });
+      const response = await taskService.getMyVolunteerCompletedTasks(20, 0);
+      set({ volunteerStats: { completedTasksCount: response.total } });
     } catch (error) {
       console.error("Error fetching volunteer stats:", error);
-      set({ volunteerStats: { completedTasksCount: 0 } }); // заглушка
+      set({ volunteerStats: { completedTasksCount: 0 } });
     }
   },
 

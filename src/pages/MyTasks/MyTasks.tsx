@@ -5,13 +5,12 @@ import {
   Box,
   Button,
   Stack,
-  Paper,
   CircularProgress,
   Alert,
-  Tabs,
-  Tab,
+  Collapse,
+  IconButton,
 } from '@mui/material';
-import { Add, Assignment, Archive } from '@mui/icons-material';
+import { Add, ArrowDropDown } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
 import { TaskCard } from '../../components/tasks/TaskCard';
@@ -19,28 +18,6 @@ import { AddTaskDialog } from '../../components/tasks/AddTaskDialog';
 import { useTaskStore } from '../../services/stores/useTaskStore';
 import { useUserPresenter } from '../../presenters/useUserPresenter';
 import type { CreateTaskRequest, UpdateTaskRequest } from '../../models/task.model';
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`tabpanel-${index}`}
-      aria-labelledby={`tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
-    </div>
-  );
-}
 
 const MyTasksPage = () => {
   const navigate = useNavigate();
@@ -65,7 +42,9 @@ const MyTasksPage = () => {
   const { myAnimals } = useUserPresenter();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [tabValue, setTabValue] = useState(0);
+  
+  // Состояние аккордеона
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   const isVolunteer = user?.role === 'volunteer';
   const isCuratorOrOrg = user?.role === 'curator' || user?.role === 'organization';
@@ -73,18 +52,9 @@ const MyTasksPage = () => {
   useEffect(() => {
     if (user) {
       fetchTasks();
-      // Загружаем архив при монтировании
       fetchArchivedTasks(user.id, user.role);
     }
   }, [user, fetchTasks, fetchArchivedTasks]);
-
-  // Перезагружаем архив при переключении на вкладку архива
-  useEffect(() => {
-    const archiveTabIndex = isCuratorOrOrg ? 2 : 1;
-    if (tabValue === archiveTabIndex && user) {
-      fetchArchivedTasks(user.id, user.role);
-    }
-  }, [tabValue, user, isCuratorOrOrg, fetchArchivedTasks]);
 
   const pendingTasks = tasks.filter((t) => t.status === 'in_pending');
   const activeTasks = tasks.filter(
@@ -95,62 +65,47 @@ const MyTasksPage = () => {
     try {
       await createTask(data);
       setIsAddDialogOpen(false);
-    } catch (err) {
-      // Error is shown in the dialog
-    }
+    } catch (err) {}
   };
 
   const handleUpdateTask = async (taskId: string, data: UpdateTaskRequest) => {
     try {
       await updateTask(taskId, data);
       setEditingTaskId(null);
-    } catch (err) {
-      // Error is shown in the dialog
-    }
+    } catch (err) {}
   };
 
   const handleCancelTask = async (taskId: string) => {
     try {
       await cancelTask(taskId);
-    } catch (err) {
-      // Error is handled
-    }
+    } catch (err) {}
   };
 
   const handleCompleteTask = async (taskId: string) => {
     try {
       await completeTask(taskId);
-      // После завершения обновляем архив
       if (user) {
         fetchArchivedTasks(user.id, user.role);
       }
-    } catch (err) {
-      // Error is handled
-    }
+    } catch (err) {}
   };
 
   const handleDeleteTask = async (taskId: string) => {
     try {
       await deleteTask(taskId);
-      // Обновляем архив после удаления
       if (user) {
         fetchArchivedTasks(user.id, user.role);
       }
-    } catch (err) {
-      // Error is handled
-    }
+    } catch (err) {}
   };
 
   const handleChat = (taskId: string) => {
     const task = tasks.find((t) => t.id === taskId) || archivedTasks.find((t) => t.id === taskId);
     if (!task) return;
 
-    // For owner: chat with assignee (volunteer)
     if (isCuratorOrOrg && task.assignee_id) {
       navigate(`/chat?userId=${task.assignee_id}`);
-    }
-    // For volunteer: chat with creator (curator/org)
-    else if (isVolunteer && task.creator_id) {
+    } else if (isVolunteer && task.creator_id) {
       navigate(`/chat?userId=${task.creator_id}`);
     }
   };
@@ -160,6 +115,74 @@ const MyTasksPage = () => {
       loadMoreArchived(user.id, user.role);
     }
   };
+
+  const toggleSection = (section: string) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  // Секция аккордеона
+  const AccordionSection = ({
+    title,
+    count,
+    section,
+    children,
+  }: {
+    title: string;
+    count: number;
+    section: string;
+    children: React.ReactNode;
+  }) => (
+    <Box sx={{ mb: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer',
+          borderRadius: '12px',
+        }}
+        onClick={() => toggleSection(section)}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleSection(section);
+            }}
+            sx={{
+              transform: expandedSection === section ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.3s',
+            }}
+          >
+            <ArrowDropDown sx={{color: 'rgba(0, 0, 0, 1)', fontSize: '40px'}} />
+          </IconButton>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            {title}
+          </Typography>
+          <Typography
+            sx={{
+              backgroundColor: 'rgba(93, 75, 216, 0.15)',
+              color: 'rgba(49, 40, 114, 1)',
+              px: 1.5,
+              py: 0.5,
+              borderRadius: '20px',
+              fontSize: '14px',
+              fontWeight: 600,
+            }}
+          >
+            {count}
+          </Typography>
+        </Box>
+      </Box>
+
+      <Collapse in={expandedSection === section}>
+        <Box sx={{ pt: 2 }}>
+          {children}
+        </Box>
+      </Collapse>
+    </Box>
+  );
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -184,55 +207,37 @@ const MyTasksPage = () => {
         </Alert>
       )}
 
-      {isLoading && tasks.length === 0 && archivedTasks.length === 0 ? (
+      {isLoading && tasks.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress />
         </Box>
       ) : (
         <>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-            <Tabs
-              value={tabValue}
-              onChange={(_, newValue) => setTabValue(newValue)}
-              aria-label="task tabs"
-            >
-              {isCuratorOrOrg && <Tab label="Ожидают исполнителя" id="tab-0" />}
-              <Tab
-                label="Активные"
-                id={isCuratorOrOrg ? 'tab-1' : 'tab-0'}
-              />
-              <Tab
-                label="Архив"
-                id={isCuratorOrOrg ? 'tab-2' : 'tab-1'}
-              />
-            </Tabs>
-          </Box>
-
-          {/* Curator/Org: Pending Tasks Tab */}
           {isCuratorOrOrg && (
-            <TabPanel value={tabValue} index={0}>
-              <Box sx={{ mb: 3 }}>
-                <Button
-                  variant="contained"
-                  startIcon={<Add />}
-                  onClick={() => setIsAddDialogOpen(true)}
-                  sx={{ mb: 2 }}
-                >
-                  Добавить задачу
-                </Button>
-              </Box>
-
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => {
+                setIsAddDialogOpen(true);
+              }}
+              sx={{ maxWidth: '231px', width: '100%', height: '45px', borderRadius: '10px', mb: 2 }}
+            >
+              Добавить задачу
+            </Button>
+          )}
+          {/* Ожидают исполнителя (только для куратора/организации) */}
+          {isCuratorOrOrg && (
+            <AccordionSection
+              title="Ожидают исполнителя"
+              count={pendingTasks.length}
+              section="pending"
+            >
               {pendingTasks.length === 0 ? (
-                <Paper elevation={2} sx={{ p: 3 }}>
-                  <Box sx={{ textAlign: 'center', py: 4 }}>
-                    <Assignment sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                    <Typography variant="body1" color="text.secondary">
-                      Нет задач, ожидающих исполнителя
-                    </Typography>
-                  </Box>
-                </Paper>
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                  Нет задач, ожидающих исполнителя
+                </Typography>
               ) : (
-                <Stack spacing={2}>
+                <Stack spacing={2} sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                   {pendingTasks.map((task) => (
                     <TaskCard
                       key={task.id}
@@ -248,22 +253,21 @@ const MyTasksPage = () => {
                   ))}
                 </Stack>
               )}
-            </TabPanel>
+            </AccordionSection>
           )}
 
-          {/* Active Tasks Tab */}
-          <TabPanel value={tabValue} index={isCuratorOrOrg ? 1 : 0}>
+          {/* Активные */}
+          <AccordionSection
+            title="Активные"
+            count={activeTasks.length}
+            section="active"
+          >
             {activeTasks.length === 0 ? (
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Assignment sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                  <Typography variant="body1" color="text.secondary">
-                    Нет активных задач
-                  </Typography>
-                </Box>
-              </Paper>
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                Нет активных задач
+              </Typography>
             ) : (
-              <Stack spacing={2}>
+              <Stack spacing={2} sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 {activeTasks.map((task) => (
                   <TaskCard
                     key={task.id}
@@ -278,28 +282,27 @@ const MyTasksPage = () => {
                     } : undefined}
                     onCancel={handleCancelTask}
                     onDelete={isCuratorOrOrg ? handleDeleteTask : undefined}
-                    onComplete={isVolunteer ? handleCompleteTask : undefined}
+                    onComplete={isCuratorOrOrg ? handleCompleteTask : undefined}
                     isLoading={isLoading}
                   />
                 ))}
               </Stack>
             )}
-          </TabPanel>
+          </AccordionSection>
 
-          {/* Archive Tab */}
-          <TabPanel value={tabValue} index={isCuratorOrOrg ? 2 : 1}>
+          {/* Архив */}
+          <AccordionSection
+            title="Архив"
+            count={archivedTasks.length}
+            section="archive"
+          >
             {archivedTasks.length === 0 ? (
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Archive sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                  <Typography variant="body1" color="text.secondary">
-                    Архив пуст
-                  </Typography>
-                </Box>
-              </Paper>
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                Архив пуст
+              </Typography>
             ) : (
               <>
-                <Stack spacing={2}>
+                <Stack spacing={2} sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                   {archivedTasks.map((task) => (
                     <TaskCard
                       key={task.id}
@@ -312,24 +315,20 @@ const MyTasksPage = () => {
                     />
                   ))}
                 </Stack>
-                
+
                 {archivedTasks.length < totalArchived && (
                   <Box sx={{ textAlign: 'center', mt: 2 }}>
-                    <Button 
-                      onClick={handleLoadMoreArchived} 
-                      disabled={isLoading}
-                    >
+                    <Button onClick={handleLoadMoreArchived} disabled={isLoading}>
                       {isLoading ? 'Загрузка...' : 'Показать ещё'}
                     </Button>
                   </Box>
                 )}
               </>
             )}
-          </TabPanel>
+          </AccordionSection>
         </>
       )}
 
-      {/* Add/Edit Task Dialog */}
       <AddTaskDialog
         open={isAddDialogOpen}
         onClose={() => {

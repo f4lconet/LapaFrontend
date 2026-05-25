@@ -11,7 +11,6 @@ import {
   Select,
   MenuItem,
   Stack,
-  Typography,
   Box,
   Avatar,
   Alert,
@@ -172,14 +171,16 @@ export const AddAnimalDialog = ({
         <Stack spacing={2} sx={{ mt: 1 }}>
           {/* Фото — только при редактировании */}
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-            <Avatar
-              src={photoUrl || undefined}
-              sx={{ width: 120, height: 120 }}
-              variant="rounded"
-            >
-              {name?.[0]?.toUpperCase() || '?'}
-            </Avatar>
-            
+            {isEditing && (
+              <Avatar
+                src={photoUrl || undefined}
+                sx={{ width: 120, height: 120 }}
+                variant="rounded"
+              >
+                {name?.[0]?.toUpperCase() || '?'}
+              </Avatar>
+            )}
+
             {isEditing && (
               <Button
                 component="label"
@@ -232,9 +233,6 @@ export const AddAnimalDialog = ({
           />
           
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
-              Местоположение
-            </Typography>
             <LocationPicker
               initialCoordinates={initialCoordinates}
               initialAddress={locationText || ''}

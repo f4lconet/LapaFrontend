@@ -62,6 +62,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           overflow: 'hidden',
           gap: 3,
           p: 3,
+          cursor: 'pointer',
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: 4,
+          },
         }}
       >
         {/* Показываем изображение только если оно есть */}
@@ -150,8 +156,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
+        cursor: 'pointer',
         '&:hover': {
           transform: 'translateY(-4px)',
+          boxShadow: 4,
         },
       }}
     >

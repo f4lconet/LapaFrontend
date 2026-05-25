@@ -1,12 +1,12 @@
-import { Box, Container, Typography } from "@mui/material"
+import { Box, Button, Container, Typography } from "@mui/material"
 import { ROUTES } from "../../routes/routes"
-import { Link } from "react-router-dom"
 
 import PetImage from '../../assets/images/drawer-open-button.svg?react'
+import { useNavigate } from "react-router-dom"
 const Feed = () => {
-  
+  const navigate = useNavigate()
+
   return (
-    
     <Container maxWidth="md" sx={{ py: 6 }}>
       <Box sx={{ mb: 4, textAlign: 'center' }}>
         <PetImage/>
@@ -35,11 +35,12 @@ const Feed = () => {
       </Typography>
 
       <Box sx={{ textAlign: 'center' }}>
-        <Link to={ROUTES.LOGIN}>
-          <Typography variant="h6">
-            Перейти на сайт
-          </Typography>
-        </Link>
+        <Button 
+          variant="contained" 
+          onClick={() => navigate(ROUTES.LOGIN)}
+        >
+          Перейти на сайт
+        </Button>
       </Box>
     </Container>
   )

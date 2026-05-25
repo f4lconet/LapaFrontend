@@ -10,17 +10,15 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Chip,
   CircularProgress,
   Alert,
-  Stack,
 } from '@mui/material';
 import { Search, Pets } from '@mui/icons-material';
-import { AnimalCardHorizontal } from '../../components/animals/AnimalCardHorizontal';
 import { animalService } from '../../services/api/animal.service';
 import { volunteerService } from '../../services/api/volunteer.service';
 import { type Animal, type AnimalType } from '../../models/user.model';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
+import { AnimalCard } from '../../components/profile/AnimalCard';
 
 const AnimalsPage = () => {
   const [animals, setAnimals] = useState<Animal[]>([]);
@@ -100,56 +98,51 @@ const AnimalsPage = () => {
       </Box>
 
       <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-          <Pets sx={{ fontSize: 32, color: 'primary.main' }} />
+        <Box sx={{ textAlign: 'center',  mb: 5 }}>
           <Typography variant="h4" component="h1">
             Животные
           </Typography>
-          <Chip 
-            label={`${filteredAnimals.length} ${getAnimalsCountText(filteredAnimals.length)}`}
-            color="primary"
-            size="small"
-          />
         </Box>
 
         {/* Фильтры */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid sx={{xs: 12, md: 6}}>
-            <TextField
-                fullWidth
-                placeholder="Поиск по имени или описанию..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                slotProps={{
-                input: {
-                    startAdornment: (
-                    <InputAdornment position="start">
-                        <Search />
-                    </InputAdornment>
-                    ),
-                }
-                
+        
+        <Box sx={{display: 'flex', justifyContent: 'center', gap: 1, mb: 5 }}>
+          <TextField
+            fullWidth
+            placeholder="Поиск по имени или описанию..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            slotProps={{
+              input: {
+                  startAdornment: (
+                  <InputAdornment position="start">
+                      <Search />
+                  </InputAdornment>
+                  ),
+              }  
             }}
-            />
-          </Grid>
-          <Grid sx={{xs: 12, md: 6}}>
-            <FormControl fullWidth>
-              <InputLabel>Тип животного</InputLabel>
-              <Select
-                value={selectedType}
-                label="Тип животного"
-                onChange={(e) => setSelectedType(e.target.value as number | '')}
-              >
-                <MenuItem value="">Все</MenuItem>
-                {animalTypes.map((type) => (
-                  <MenuItem key={type.id} value={type.id}>
-                    {type.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+          />
+        
+        
+          <FormControl sx={{maxWidth: '160px', width:'100%' }}>
+            <InputLabel>Тип животного</InputLabel>
+            <Select
+              value={selectedType}
+              label="Тип животного"
+              onChange={(e) => setSelectedType(e.target.value as number | '')}
+            >
+              <MenuItem value="">Все</MenuItem>
+              {animalTypes.map((type) => (
+                <MenuItem key={type.id} value={type.id}>
+                  {type.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        
+          
+        
 
         {/* Список животных - теперь в виде списка, а не сетки */}
         {filteredAnimals.length === 0 ? (
@@ -163,26 +156,21 @@ const AnimalsPage = () => {
             </Typography>
           </Box>
         ) : (
-          <Stack spacing={2}>
+          <Grid container sx={{justifyContent: 'center', gap: 3}}>
             {filteredAnimals.map((animal) => (
-              <AnimalCardHorizontal 
-                key={animal.id} 
-                animal={animal}
-                showViewButton={true}
-              />
+              <Grid sx={{xs: 12, sm: 6, md: 4}} key={animal.id}>
+                <AnimalCard 
+                  animal={animal}
+                  isOwnProfile={false}
+                  showCuratorButton={true}
+                />
+              </Grid>
             ))}
-          </Stack>
+          </Grid>
         )}
       </Box>
     </Container>
   );
 };
-
-// Вспомогательная функция для склонения
-function getAnimalsCountText(count: number): string {
-  if (count % 10 === 1 && count % 100 !== 11) return 'животное';
-  if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) return 'животных';
-  return 'животных';
-}
 
 export default AnimalsPage;
