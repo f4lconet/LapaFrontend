@@ -218,7 +218,7 @@ const TasksFeedPage = () => {
           onClick={(e) => setAnchorEl(e.currentTarget)}
           sx={{ 
             flexShrink: 0, 
-            height: 56,
+            height: 80,
             px: 3,
             borderRadius: '12px',
             backgroundColor: 'primary.main',
@@ -285,7 +285,7 @@ const TasksFeedPage = () => {
           {/* Recommended Tasks for Volunteers */}
           {isVolunteer && filteredRecommended.length > 0 && (
             <Box sx={{ mb: 4 }}> 
-              <Typography variant="h6" sx={{textAlign: 'center'}}>Рекомендуемые для вас</Typography>
+              <Typography variant="h6" sx={{ mb: 2 }}>Рекомендуемые для вас</Typography>
 
               <Stack spacing={2} sx={{ mb: 2, alignItems: 'center' }}>
                 {filteredRecommended.map((task) => (

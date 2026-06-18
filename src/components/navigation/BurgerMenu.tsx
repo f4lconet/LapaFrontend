@@ -98,13 +98,13 @@ export const BurgerMenu = ({ onLogout }: BurgerMenuProps) => {
           },
           paper: {
             sx: {
-              width: 321,
-              height: 670,
+              width: { xs: '100%', sm: 280, md: 321 },
+              height: { xs: '100%', sm: 'auto', md: 670 },
               top: 0,
               right: 0,
               bottom: 'auto',
               left: 'auto',
-              borderRadius: '0 0 0 16px',
+              borderRadius: { xs: 0, sm: '0 0 0 16px' },
               boxShadow: 3,
               bgcolor: 'rgba(93, 75, 216, 1)',
               color: '#ffffff',
@@ -113,28 +113,33 @@ export const BurgerMenu = ({ onLogout }: BurgerMenuProps) => {
           },
         }}
       >
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
           {/* Кнопка закрытия внутри Drawer'а */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: { xs: 1.5, sm: 2 } }}>
             <IconButton onClick={handleClose} size="small" sx={{ color: '#ffffff' }}>
               <CloseDrawerIcon />
             </IconButton>
           </Box>
           
-          <Divider sx={{ mb: 2, bgcolor: 'rgba(255,255,255,0.2)' }} />
+          <Divider sx={{ mb: { xs: 1.5, sm: 2 }, bgcolor: 'rgba(255,255,255,0.2)' }} />
           
           <List>
             {navItems.map((item) => {
               const isActive = isPathActive(item.path)
               
               return (
-                <ListItem key={item.path} disablePadding sx={{ mb: 1 }}>
+                <ListItem 
+                  key={item.path} 
+                  disablePadding 
+                  sx={{ mb: { xs: 0.5, sm: 1 } }}
+                >
                   <ListItemButton
                     onClick={() => handleNavigation(item.path)}
                     selected={isActive}
                     sx={{
                       borderRadius: 2,
                       color: '#ffffff',
+                      fontSize: { xs: '14px', sm: '15px', md: '16px' },
                       '&.Mui-selected': {
                         bgcolor: 'rgba(255,255,255,0.2)',
                         color: '#ffffff',

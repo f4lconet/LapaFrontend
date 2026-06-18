@@ -53,13 +53,31 @@ export const Login = () => {
         error={error}
         onClearError={clearError}
       />
+
+      <Box sx={{textAlign:"center", mt: 1}}>
+        <MuiLink component={Link} to={ROUTES.REGISTER}
+          sx={{
+              fontWeight: 400,
+              textDecoration: 'none',
+              color: 'black',
+              ":hover": {
+                opacity: 0.8
+              }
+          }}
+        >
+          Восстановление пароля
+        </MuiLink>
+      </Box>
       
-      <Box sx={{textAlign:"center", marginTop: '10px'}}>
+      <Box sx={{textAlign:"center", mt: 2}}>
         <MuiLink component={Link} to={ROUTES.REGISTER}
           sx={{
               fontWeight: 700,
               textDecoration: 'none',
               color: 'black',
+              ":hover": {
+                opacity: 0.8
+              }
           }}
         >
           Нет аккаунта? Зарегистрироваться

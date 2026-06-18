@@ -1,0 +1,183 @@
+// My Tasks Page - Responsive Styles
+
+// Desktop (1025px and above)
+@media (min-width: 1025px) {
+  .my-tasks-page {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .my-tasks-header {
+    margin-bottom: 28px;
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+  }
+
+  .tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .task-card {
+    padding: 20px;
+    border-radius: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .task-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .task-description {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Tablet (769px - 1024px)
+@media (min-width: 769px) and (max-width: 1024px) {
+  .my-tasks-page {
+    padding: 20px;
+  }
+
+  .my-tasks-header {
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 32px;
+    }
+  }
+
+  .tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .task-card {
+    padding: 16px;
+    border-radius: 14px;
+
+    .task-title {
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .task-description {
+      font-size: 13px;
+    }
+  }
+}
+
+// Small Tablet & Large Mobile (481px - 768px)
+@media (min-width: 481px) and (max-width: 768px) {
+  .my-tasks-page {
+    padding: 16px;
+  }
+
+  .my-tasks-header {
+    margin-bottom: 18px;
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+  }
+
+  .tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .task-card {
+    padding: 12px;
+    border-radius: 12px;
+
+    .task-title {
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .task-description {
+      font-size: 12px;
+    }
+
+    .task-meta {
+      font-size: 11px;
+      margin-top: 8px;
+    }
+  }
+}
+
+// Mobile (480px and below)
+@media (max-width: 480px) {
+  .my-tasks-page {
+    padding: 12px;
+  }
+
+  .my-tasks-header {
+    margin-bottom: 14px;
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+  }
+
+  .tasks-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .task-card {
+    padding: 12px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .task-description {
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .task-meta {
+      font-size: 10px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+  }
+
+  .task-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    button {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+  }
+}

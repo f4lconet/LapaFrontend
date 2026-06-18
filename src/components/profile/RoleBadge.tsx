@@ -10,7 +10,14 @@ export const RoleBadge = ({ role }: RoleBadgeProps) => {
     <Chip
       label={roleRuMap[role]}
       size="medium"
-      sx={{ ml: 1, fontWeight: 400, fontSize: 20, backgroundColor: 'rgba(122, 0, 118, 1)', color: 'rgba(255, 255, 255, 1)' }}
+      sx={{ 
+        mb: { xs: 0.1, sm: 1 },
+        fontWeight: 400, 
+        fontSize: { xs: '14px', sm: '16px', md: '20px' }, 
+        backgroundColor: 'rgba(122, 0, 118, 1)', 
+        color: 'rgba(255, 255, 255, 1)',
+        height: { xs: '28px', sm: '32px', md: '40px' },
+      }}
     />
   );
 };

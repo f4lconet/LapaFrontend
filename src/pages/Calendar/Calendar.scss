@@ -71,12 +71,32 @@
   }
 }
 
-@media (max-width: 768px) {
-  
+// Desktop (1025px and above)
+@media (min-width: 1025px) {
+  .fc {
+    padding: 20px;
+    margin: 0 auto;
+  }
+
+  .fc-toolbar {
+    margin-bottom: 24px;
+
+    .fc-toolbar-title {
+      font-size: 28px;
+    }
+  }
+
+  .fc-daygrid-day {
+    font-size: 16px;
+  }
+}
+
+// Tablet (769px - 1024px)
+@media (min-width: 769px) and (max-width: 1024px) {
   .fc {
     .fc-col-header-cell {
-      padding: 8px 2px;
-      font-size: 0.75rem;
+      padding: 8px 4px;
+      font-size: 0.85rem;
     }
 
     .fc-daygrid-day-number {
@@ -85,12 +105,117 @@
     }
 
     .fc-event-title {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
     }
 
     .fc-daygrid-day-frame {
-      min-height: 100px;
+      min-height: 110px;
+    }
+
+    .fc-toolbar {
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1.2rem;
+    }
+
+    .fc-button {
+      padding: 5px 10px !important;
     }
   }
-  
+}
+
+// Small Tablet & Large Mobile (481px - 768px)
+@media (min-width: 481px) and (max-width: 768px) {
+  .fc {
+    padding: 12px;
+
+    .fc-col-header-cell {
+      padding: 8px 2px;
+      font-size: 0.75rem;
+    }
+
+    .fc-daygrid-day-number {
+      padding: 6px;
+      font-size: 0.75rem;
+    }
+
+    .fc-event-title {
+      font-size: 0.7rem;
+    }
+
+    .fc-daygrid-day-frame {
+      min-height: 80px;
+    }
+
+    .fc-button {
+      padding: 4px 8px !important;
+      font-size: 0.75rem !important;
+    }
+
+    .fc-toolbar {
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Mobile (480px and below)
+@media (max-width: 480px) {
+  .fc {
+    padding: 8px;
+
+    .fc-col-header-cell {
+      padding: 6px 2px;
+      font-size: 0.65rem;
+    }
+
+    .fc-daygrid-day-number {
+      padding: 4px;
+      font-size: 0.7rem;
+    }
+
+    .fc-event-title {
+      font-size: 0.65rem;
+      display: none;
+    }
+
+    .fc-daygrid-day-frame {
+      min-height: 60px;
+    }
+
+    .fc-event {
+      padding: 2px !important;
+      font-size: 10px;
+    }
+
+    .fc-button {
+      padding: 3px 5px !important;
+      font-size: 0.65rem !important;
+      margin-right: 1px !important;
+    }
+
+    .fc-toolbar {
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .fc-toolbar-title {
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .fc-button-group {
+      flex-wrap: wrap;
+    }
+  }
 }

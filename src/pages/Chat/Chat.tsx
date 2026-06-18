@@ -1,6 +1,7 @@
-import { Box, Alert, CircularProgress } from '@mui/material'
-import { useEffect, useRef } from 'react'
+import { Box, Alert, CircularProgress, Typography } from '@mui/material'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useAuthStore } from '../../services/stores/useAuthStore'
 import { useChatPresenter } from '../../presenters/useChatPresenter'
 import { ChatList } from '../../components/chat/ChatList'
@@ -13,6 +14,9 @@ export default function Chat() {
   const [searchParams] = useSearchParams()
   const { createChat, loadChats, chooseChat, chats, currentChat, error, clearError, isLoading } = useChatPresenter()
   const initRef = useRef(false)
+  
+  // State for mobile view toggle
+  const [showChatList, setShowChatList] = useState(true)
 
   // Load chats on mount
   useEffect(() => {
@@ -25,11 +29,6 @@ export default function Chat() {
   useEffect(() => {
     const userId = searchParams.get('userId')
     
-    // Skip if:
-    // - No userId in URL
-    // - No current user
-    // - We already have a current chat selected
-    // - Already tried to initialize
     if (!userId || !user || currentChat || initRef.current) {
       return
     }
@@ -38,53 +37,36 @@ export default function Chat() {
 
     const initializeChat = async () => {
       try {
-        console.log('Chat initialization started')
-        console.log('Current user ID:', user.id)
-        console.log('Target user ID:', userId)
-        console.log('Existing chats count:', chats.length)
-        
-        // Check if chat already exists
         const existingChat = chats.find((chat) => {
-          const isMatch = (chat.user_1_id === userId && chat.user_2_id === user.id) ||
-                          (chat.user_1_id === user.id && chat.user_2_id === userId)
-          if (isMatch) {
-            console.log('Found matching chat:', chat.id)
-          }
-          return isMatch
+          return (chat.user_1_id === userId && chat.user_2_id === user.id) ||
+                 (chat.user_1_id === user.id && chat.user_2_id === userId)
         })
 
         if (existingChat) {
-          console.log('Using existing chat:', existingChat.id)
           chooseChat(existingChat)
+          setShowChatList(false)
           return
         }
 
-        // Reload chats to ensure we have latest list
-        console.log('No matching chat found, reloading chat list...')
         await loadChats()
 
-        // Try to find again after reload
         const reloadedChat = chats.find((chat) => {
           return (chat.user_1_id === userId && chat.user_2_id === user.id) ||
                  (chat.user_1_id === user.id && chat.user_2_id === userId)
         })
 
         if (reloadedChat) {
-          console.log('Found chat after reload:', reloadedChat.id)
           chooseChat(reloadedChat)
+          setShowChatList(false)
           return
         }
 
-        // Create new chat
-        console.log('Creating new chat with user:', userId)
         const result = await createChat({ user_id: userId })
         
         if (result.success && result.data) {
-          console.log('Chat created successfully:', result.data.id)
           chooseChat(result.data)
+          setShowChatList(false)
         } else {
-          console.error('Failed to create chat:', result.error)
-          // Reload one more time in case it was created
           await loadChats()
         }
       } catch (err) {
@@ -95,28 +77,69 @@ export default function Chat() {
     initializeChat()
   }, [searchParams, user, chats, currentChat, createChat, loadChats, chooseChat])
 
+  useEffect(() => {
+    if (currentChat) {
+      setShowChatList(false)
+    }
+  }, [currentChat?.id])
+
+  const handleChatSelect = () => {
+    setShowChatList(false)
+  }
+
+  const handleBackToList = () => {
+    setShowChatList(true)
+  }
+
   return (
-    <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <BurgerMenu />
+    <Box sx={{ height: '100%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, px: { xs: 1, sm: 2, md: 3 }, pt: { xs: 1, sm: 2, md: 2 } }}>
+        <BurgerMenu />
+      </Box>
+      
+      {error && (
+        <Alert severity="error" onClose={clearError} sx={{ mb: 2, mx: { xs: 1, sm: 2, md: 3 } }}>
+          Ошибка при работе с чатом: {error}
+        </Alert>
+      )}
+
+      {isLoading && chats.length === 0 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3, mb: 2 }}>
+          <CircularProgress size={24} />
+        </Box>
+      )}
+
+      {!showChatList && currentChat && (
+        <Box 
+          className="mobile-back-button"
+          onClick={handleBackToList}
+          sx={{ display: { xs: 'flex', md: 'none' } }}
+        >
+          <ArrowBackIcon fontSize="small" />
+          <Typography variant="body2">К списку чатов</Typography>
+        </Box>
+      )}
+
+      <Box className="chat-container">
+        <Box sx={{ 
+          display: { 
+            xs: showChatList ? 'flex' : 'none', 
+            md: 'flex' 
+          }
+        }}>
+          <ChatList onChatSelect={handleChatSelect} />
         </Box>
         
-        {error && (
-          <Alert severity="error" onClose={clearError} sx={{ mb: 2 }}>
-            Ошибка при работе с чатом: {error}
-          </Alert>
-        )}
-
-        {isLoading && chats.length === 0 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 3, mb: 2 }}>
-            <CircularProgress size={24} />
-          </Box>
-        )}
-
-        <Box className="chat-container" sx={{display: 'flex', gap: '30px'}}>
-            <ChatList />
-            <ChatMessages currentUserId={user?.id} />
+        <Box sx={{ 
+          display: { 
+            xs: !showChatList ? 'flex' : 'none', 
+            md: 'flex' 
+          },
+          flex: 1
+        }}>
+          <ChatMessages currentUserId={user?.id} />
         </Box>
+      </Box>
     </Box>
   )
 }

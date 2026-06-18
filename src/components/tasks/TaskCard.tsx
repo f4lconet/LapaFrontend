@@ -100,9 +100,22 @@ export const TaskCard = ({
 
   // Контент карточки (переиспользуется в диалоге)
   const TaskContent = ({ isDialog = false }: { isDialog?: boolean }) => (
-    <Stack spacing={1}>
-      <Box sx={{ alignSelf: 'center', display: 'flex', gap: 1 }}>
-        <Typography variant="h6" sx={{ fontWeight: 500, fontSize: '20px' }}>
+    <Stack spacing={{ xs: 0.75, sm: 1, md: 1 }}>
+      <Box sx={{ 
+        alignSelf: 'center', 
+        display: 'flex', 
+        gap: { xs: 0.5, sm: 1 },
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+      }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 500, 
+            fontSize: { xs: '16px', sm: '18px', md: '20px' },
+            textAlign: 'center',
+          }}
+        >
           {task.title}
         </Typography>
         {isOwner && task.status === 'in_pending' && onEdit && !isDialog && (
@@ -208,11 +221,11 @@ export const TaskCard = ({
       <Box
         onClick={() => setIsDialogOpen(true)}
         sx={{
-          maxWidth: '500px',
+          maxWidth: { xs: '100%', sm: '100%', md: '500px' },
           width: '100%',
-          mb: 2,
+          mb: { xs: 1.5, sm: 2 },
           backgroundColor: 'rgba(248, 247, 255, 1)',
-          borderRadius: '20px',
+          borderRadius: { xs: '12px', sm: '16px', md: '20px' },
           cursor: 'pointer',
           transition: 'transform 0.2s, box-shadow 0.2s',
           '&:hover': {
@@ -221,12 +234,23 @@ export const TaskCard = ({
           },
         }}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          p: { xs: 1.5, sm: 2, md: 2 }
+        }}>
           <TaskContent />
         </Box>
 
         <CardActions 
-          sx={{ justifyContent: 'flex-end', gap: 1, pt: 0, flexWrap: 'wrap' }}
+          sx={{ 
+            justifyContent: 'flex-end', 
+            gap: { xs: 0.5, sm: 1 }, 
+            pt: 0, 
+            flexWrap: 'wrap',
+            px: { xs: 1.5, sm: 2, md: 2 },
+            pb: { xs: 1.5, sm: 2, md: 2 }
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           {isVolunteer && task.status === 'in_pending' && onTake && (
@@ -278,8 +302,24 @@ export const TaskCard = ({
       </Box>
 
       {/* Диалог с полной информацией */}
-      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogContent sx={{ p: 3 }}>
+      <Dialog 
+        open={isDialogOpen} 
+        onClose={() => setIsDialogOpen(false)} 
+        maxWidth="sm" 
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              m: { xs: 1, sm: 2 },
+              maxHeight: { xs: '90vh', sm: '80vh' },
+            }
+          }
+        }}
+      >
+        <DialogContent sx={{ 
+          p: { xs: 1.5, sm: 2, md: 3 },
+          fontSize: { xs: '12px', sm: '13px', md: '14px' }
+        }}>
           <TaskContent isDialog />
         </DialogContent>
       </Dialog>

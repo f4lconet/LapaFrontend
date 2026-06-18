@@ -42,25 +42,41 @@ export const EventModal = ({
           transform: 'translate(-50%, -50%)',
           bgcolor: 'background.paper',
           boxShadow: 24,
-          p: 4,
-          borderRadius: 2,
-          maxWidth: 600,
-          width: '90%',
-          maxHeight: '90vh',
+          p: { xs: 2, sm: 3, md: 4 },
+          borderRadius: { xs: 1, sm: 2 },
+          maxWidth: { xs: '90%', sm: '95%', md: 600 },
+          width: { xs: '95%', sm: '90%', md: 'auto' },
+          maxHeight: { xs: '85vh', sm: '90vh' },
           overflow: 'auto',
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          mb: { xs: 1.5, sm: 2 },
+          flexWrap: 'wrap',
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: { xs: '16px', sm: '18px', md: '20px' }
+            }}
+          >
             {mode === 'view' ? 'Детали события' : 'Редактирование события'}
           </Typography>
-          <IconButton onClick={onClose}>
-            <CloseIcon />
+          <IconButton 
+            onClick={onClose}
+            sx={{ minWidth: 'auto' }}
+          >
+            <CloseIcon sx={{ fontSize: { xs: '20px', sm: '24px', md: '28px' } }} />
           </IconButton>
         </Box>
 
         {mode === 'view' && event ? (
-          <Stack spacing={2}>
+          <Stack spacing={{ xs: 1, sm: 1.5, md: 2 }}>
             <ViewField label="Название" value={event.title} />
             <ViewField label="Дата" value={event.event_date} />
             <ViewField 
@@ -72,24 +88,42 @@ export const EventModal = ({
             {event.task_id && <ViewField label="ID задачи" value={event.task_id} />}
             
             {isAdmin && (
-              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
-                <Button variant="outlined" startIcon={<EditIcon />} onClick={onEdit}>
+              <Box sx={{ 
+                display: 'flex', 
+                gap: { xs: 0.5, sm: 1 }, 
+                justifyContent: 'flex-end', 
+                mt: { xs: 1.5, sm: 2 },
+                flexWrap: 'wrap'
+              }}>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<EditIcon />} 
+                  onClick={onEdit}
+                  sx={{ fontSize: { xs: '12px', sm: '13px', md: '14px' } }}
+                >
                   Редактировать
                 </Button>
-                <Button variant="contained" color="error" startIcon={<DeleteIcon />} onClick={onDelete}>
+                <Button 
+                  variant="contained" 
+                  color="error" 
+                  startIcon={<DeleteIcon />} 
+                  onClick={onDelete}
+                  sx={{ fontSize: { xs: '12px', sm: '13px', md: '14px' } }}
+                >
                   Удалить
                 </Button>
               </Box>
             )}
           </Stack>
         ) : (
-          <Stack spacing={2}>
+          <Stack spacing={{ xs: 1.5, sm: 2 }}>
             <TextField
               label="Название события *"
               fullWidth
               value={formData.title || ''}
               onChange={(e) => onFormChange({ ...formData, title: e.target.value })}
               required
+              sx={{ fontSize: { xs: '13px', sm: '14px', md: '16px' } }}
             />
             <TextField
               label="Дата"

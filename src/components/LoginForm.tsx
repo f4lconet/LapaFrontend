@@ -42,6 +42,7 @@ export const LoginForm = ({
       color: 'black',
       backgroundColor: 'rgba(230, 226, 255, 1)',
       borderRadius: '12px',
+      fontSize: { xs: '14px', sm: '16px' },
       '& fieldset': {
         border: 'none',
       },
@@ -54,12 +55,14 @@ export const LoginForm = ({
     },
     '& .MuiInputLabel-root': {
       color: 'rgba(0, 0, 0, 1)',
+      fontSize: { xs: '13px', sm: '14px' },
       '&.Mui-focused': {
         color: 'rgba(0, 0, 0, 1)',
       },
     },
     '& .MuiInputBase-input': {
       color: 'black',
+      padding: { xs: '10px 12px', sm: '12px 14px' },
     },
   }
 
@@ -91,7 +94,7 @@ export const LoginForm = ({
         </Alert>
       )}
       
-      <Stack spacing={2.5}>
+      <Stack spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
         <TextField
           fullWidth
           label="Эл. почта"
@@ -136,7 +139,19 @@ export const LoginForm = ({
           variant="contained"
           disabled={isLoading}
           size="large"
-          sx={{ mt: 1, py: 1.5, backgroundColor: 'rgba(230, 226, 255, 1)', color: 'rgba(0,0,0,1)', borderRadius: '34px', fontSize: '20px', fontWeight: '700' }}
+          sx={{ 
+            mt: { xs: 0.5, sm: 1 }, 
+            py: { xs: 1, sm: 1.5 }, 
+            backgroundColor: 'rgba(230, 226, 255, 1)', 
+            color: 'rgba(0,0,0,1)', 
+            borderRadius: '34px', 
+            fontSize: { xs: '16px', sm: '18px', md: '20px' }, 
+            fontWeight: '700',
+            textTransform: 'none',
+            ":hover": {
+                opacity: 0.8,
+              }
+          }}
         >
           {isLoading ? (
             <>

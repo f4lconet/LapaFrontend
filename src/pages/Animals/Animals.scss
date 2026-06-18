@@ -1,0 +1,51 @@
+// Animals Page - Responsive Styles
+
+// Desktop (1025px and above)
+@media (min-width: 1025px) {
+  .animals-page {
+    padding: 24px;
+    max-width: 1400px;
+  }
+}
+
+// Tablet (769px - 1024px)
+@media (min-width: 769px) and (max-width: 1024px) {
+  .animals-page {
+    padding: 20px;
+  }
+}
+
+// Small Tablet & Large Mobile (481px - 768px)
+@media (min-width: 481px) and (max-width: 768px) {
+  .animals-page {
+    padding: 16px;
+  }
+
+  // Adjust grid for tablets
+  .animals-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+// Mobile (480px and below)
+@media (max-width: 480px) {
+  .animals-page {
+    padding: 12px;
+  }
+
+  // Stack items on mobile
+  .animals-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  // Adjust typography for mobile
+  h1 {
+    font-size: 20px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}

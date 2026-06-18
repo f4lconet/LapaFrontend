@@ -93,8 +93,23 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
 
   if (!currentChat) {
     return (
-      <Box sx={{borderRadius: '20px', backgroundColor:'rgba(248, 247, 255, 1)', maxHeight: '700px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-        <Typography variant="h6" sx={{ color: 'text.secondary' }}>
+      <Box sx={{
+        borderRadius: { xs: '12px', sm: '16px', md: '20px' }, 
+        backgroundColor:'rgba(248, 247, 255, 1)', 
+        maxHeight: { xs: '400px', sm: '500px', md: '700px' }, 
+        width: '100%', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        p: { xs: 1.5, sm: 2 }
+      }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            color: 'text.secondary',
+            fontSize: { xs: '14px', sm: '16px', md: '18px' }
+          }}
+        >
           Для начала переписки выберите чат из списка
         </Typography>
       </Box>
@@ -102,20 +117,56 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
   }
 
   return (
-    <Box className="chat-messages" sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+    <Box className="chat-messages" sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100%',
+      width: '100%',
+      maxHeight: { xs: '400px', sm: '500px', md: '700px' },  // ← как у ChatList
+      borderRadius: { xs: '12px', sm: '16px', md: '20px' },
+      backgroundColor: 'rgba(248, 247, 255, 1)',
+      border: '1px solid black'
+    }}>
       {/* Chat Header */}
-      <Box className="chat-header" sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
-        <Box className="chat-header-content" onClick={navigateToProfile} sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box className="chat-header" sx={{ 
+        p: { xs: 1, sm: 1.5, md: 2 }, 
+        borderBottom: '1px solid #e0e0e0' 
+      }}>
+        <Box 
+          className="chat-header-content" 
+          onClick={navigateToProfile} 
+          sx={{ 
+            cursor: 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: { xs: 1, sm: 1.5, md: 2 }
+          }}
+        >
           <Avatar
             src={otherUser?.avatar_url}
             alt={otherUser?.name}
-            sx={{ width: 40, height: 40 }}
+            sx={{ 
+              width: { xs: 32, sm: 36, md: 40 }, 
+              height: { xs: 32, sm: 36, md: 40 } 
+            }}
           />
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            <Typography 
+              variant="subtitle1" 
+              sx={{ 
+                fontWeight: 600,
+                fontSize: { xs: '14px', sm: '15px', md: '16px' }
+              }}
+            >
               {otherUser?.name}
             </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            <Typography 
+              variant="caption" 
+              sx={{ 
+                color: 'text.secondary',
+                fontSize: { xs: '11px', sm: '12px', md: '13px' }
+              }}
+            >
               {otherUser?.role}
             </Typography>
           </Box>
@@ -123,13 +174,29 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
       </Box>
 
       {error && (
-        <Alert severity="error" onClose={clearError} sx={{ m: 2 }}>
+        <Alert 
+          severity="error" 
+          onClose={clearError} 
+          sx={{ 
+            m: { xs: 1, sm: 1.5, md: 2 },
+            fontSize: { xs: '12px', sm: '13px', md: '14px' }
+          }}
+        >
           {error}
         </Alert>
       )}
 
       {/* Messages Container */}
-      <Box className="messages-container" sx={{ flex: 1, overflow: 'auto', p: 2, minHeight: '400px', maxHeight: '500px' }}>
+      <Box 
+        className="messages-container" 
+        sx={{ 
+          flex: 1, 
+          overflow: 'auto', 
+          p: { xs: 1, sm: 1.5, md: 2 }, 
+          minHeight: { xs: '250px', sm: '350px', md: '400px' }, 
+          maxHeight: { xs: '350px', sm: '450px', md: '500px' }
+        }}
+      >
         {isLoading && messages.length === 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <CircularProgress />

@@ -99,6 +99,9 @@ const Register = () => {
             fontWeight: 700,
             textDecoration: 'none',
             color: 'black',
+            ":hover": {
+                opacity: 0.8
+              }
           }}
         >
           Есть аккаунт? Авторизоваться

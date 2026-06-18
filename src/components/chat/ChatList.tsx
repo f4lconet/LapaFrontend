@@ -5,7 +5,11 @@ import { useAuthStore } from '../../services/stores/useAuthStore'
 import type { Chat } from '../../models/chat.model'
 import '../../pages/Chat/Chat.scss'
 
-export const ChatList = () => {
+interface ChatListProps {
+  onChatSelect?: () => void
+}
+
+export const ChatList = ({ onChatSelect }: ChatListProps) => {
   const { chats, currentChat, isLoading, error, loadChats, chooseChat, clearError } = useChatPresenter()
   const { user } = useAuthStore()
 
@@ -35,9 +39,25 @@ export const ChatList = () => {
   }
 
   return (
-    <Card className="chat-list" sx={{border:'1px solid black', borderRadius:'20px', backgroundColor: 'rgba(248, 247, 255, 1)', maxHeight: '700px'}}>
-      <Box sx={{ p: 2}}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+    <Card 
+      className="chat-list" 
+      sx={{
+        border:'1px solid black', 
+        borderRadius: { xs: '12px', sm: '16px', md: '20px' }, 
+        backgroundColor: 'rgba(248, 247, 255, 1)', 
+        maxHeight: { xs: '400px', sm: '500px', md: '700px' },
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 }}}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 600,
+            fontSize: { xs: '16px', sm: '18px', md: '20px' }
+          }}
+        >
           Чаты
         </Typography>
       </Box>
@@ -68,10 +88,13 @@ export const ChatList = () => {
               <Box key={chat.id}>
                 <ListItem disablePadding>
                   <ListItemButton
-                    onClick={() => chooseChat(chat)}
+                    onClick={() => {
+                      chooseChat(chat)
+                      onChatSelect?.()
+                    }}
                     selected={isSelected}
                     sx={{
-                      p: 2,
+                      p: { xs: 1, sm: 1.5, md: 2 },
                       backgroundColor: isSelected ? '#f5f5f5' : 'transparent',
                       '&:hover': {
                         backgroundColor: '#fafafa',
@@ -87,10 +110,21 @@ export const ChatList = () => {
                     <Avatar
                       src={otherUser.avatar_url}
                       alt={otherUser.name}
-                      sx={{ mr: 2, width: 48, height: 48 }}
+                      sx={{ 
+                        mr: { xs: 1, sm: 1.5, md: 2 }, 
+                        width: { xs: 36, sm: 40, md: 48 }, 
+                        height: { xs: 36, sm: 40, md: 48 } 
+                      }}
                     />
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
+                      <Typography 
+                        variant="subtitle2" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          whiteSpace: 'nowrap',
+                          fontSize: { xs: '13px', sm: '14px', md: '15px' }
+                        }}
+                      >
                         {otherUser.name}
                       </Typography>
                       <Typography
@@ -101,11 +135,18 @@ export const ChatList = () => {
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
+                          fontSize: { xs: '11px', sm: '12px', md: '13px' }
                         }}
                       >
                         {getLastMessagePreview(chat)}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem' }}>
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          color: 'text.disabled', 
+                          fontSize: { xs: '9px', sm: '10px', md: '11px' }
+                        }}
+                      >
                         {new Date(chat.last_message_at).toLocaleDateString()}
                       </Typography>
                     </Box>

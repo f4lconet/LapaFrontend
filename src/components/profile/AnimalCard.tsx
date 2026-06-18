@@ -60,13 +60,17 @@ export const AnimalCard = ({
       <Card
         sx={{
           width: '100%',
-          maxWidth: 345,
-          height: showCuratorButton ? 420 : 380,
+          maxWidth: { xs: '100%', sm: 345, md: 360 },
+          height: {
+            xs: showCuratorButton ? 'auto' : 'auto',
+            sm: showCuratorButton ? 420 : 380,
+            md: showCuratorButton ? 440 : 400,
+          },
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
           backgroundColor: 'rgba(248, 247, 255, 1)',
-          padding: '10px',
+          padding: { xs: '8px', sm: '10px', md: '12px' },
           cursor: 'pointer',
           transition: 'transform 0.2s, box-shadow 0.2s',
           '&:hover': {
@@ -79,10 +83,9 @@ export const AnimalCard = ({
         {animal.photoUrl ? (
           <CardMedia
             component="img"
-            height="167px"
             image={animal.photoUrl}
             alt={animal.name}
-            sx={{ borderRadius: '10px', width: '100%', objectFit: 'cover', flexShrink: 0 }}
+            sx={{ borderRadius: '10px', width: '100%', objectFit: 'cover', flexShrink: 0, height: { xs: '140px', sm: '167px', md: '180px' } }}
           />
         ) : (
           <Box
@@ -100,17 +103,17 @@ export const AnimalCard = ({
           </Box>
         )}
 
-        <CardContent sx={{ flex: 1, overflow: 'hidden', pb: 0 }}>
-          <Typography sx={{ fontSize: '16px', fontWeight: 400 }} gutterBottom>
+        <CardContent sx={{ flex: 1, overflow: 'hidden', pb: 0, p: { xs: '8px', sm: '16px' } }}>
+          <Typography sx={{ fontSize: { xs: '14px', sm: '16px', md: '16px' }, fontWeight: 400 }} gutterBottom>
             Имя: {animal.name}
           </Typography>
 
-          <Typography sx={{ fontSize: '16px', fontWeight: 400 }} gutterBottom>
+          <Typography sx={{ fontSize: { xs: '14px', sm: '16px', md: '16px' }, fontWeight: 400 }} gutterBottom>
             Возраст: {`${animal.age} ${getAgeText(animal.age)}`}
           </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography sx={{ fontSize: '16px', fontWeight: 400, flex: 1 }} noWrap>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
+            <Typography sx={{ fontSize: { xs: '13px', sm: '16px', md: '16px' }, fontWeight: 400, flex: 1 }} noWrap>
               Локация: {animal.locationText}
             </Typography>
             {animal.locationLat != null && animal.locationLng != null && (
@@ -137,7 +140,7 @@ export const AnimalCard = ({
 
           <Typography
             sx={{
-              fontSize: '16px',
+              fontSize: { xs: '13px', sm: '16px', md: '16px' },
               fontWeight: 400,
               mt: 1,
               display: '-webkit-box',
@@ -197,7 +200,7 @@ export const AnimalCard = ({
       >
         <DialogTitle sx={{ fontSize: 24, fontWeight: 700 }}>{animal.name}</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: {xs: 0.7, sm: 1.5}, mt: 1 }}>
             {animal.photoUrl && (
               <Box
                 component="img"

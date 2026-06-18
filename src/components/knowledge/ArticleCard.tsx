@@ -36,9 +36,31 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
   const truncateText = (text: string, maxLength: number) => {
     if (!text) return '';
-    const plainText = text.replace(/<[^>]*>/g, '');
-    if (plainText.length <= maxLength) return plainText;
-    return plainText.substring(0, maxLength) + '...';
+    
+    const plainText = text
+      .replace(/<(br|hr)[^>]*>/gi, '\n')           // <br> и <hr> → перенос строки
+      .replace(/<\/(p|div|h[1-6]|li|tr)>/gi, '\n') // закрывающие теги блоков → перенос
+      .replace(/<[^>]*>/g, ' ')                     // остальные теги → пробел
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/\n\s+/g, '\n')                      // убираем пробелы после переносов
+      .replace(/[ \t]+/g, ' ')                      // множественные пробелы → один
+      .replace(/\n{3,}/g, '\n\n')                   // максимум 2 переноса подряд
+      .trim();
+    
+    if (plainText.length <= maxLength) {
+      return plainText;
+    }
+    
+    const truncated = plainText.substring(0, maxLength);
+    const lastNewline = truncated.lastIndexOf('\n');
+    const lastSpace = truncated.lastIndexOf(' ');
+    const cutAt = Math.max(lastNewline, lastSpace);
+    
+    return (cutAt > 0 ? truncated.substring(0, cutAt) : truncated) + '...';
   };
 
   const hasCoverImage = article.cover_image && article.cover_image.trim() !== '';
@@ -56,12 +78,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
       <Paper
         onClick={handleCardClick}
         sx={{
-          display: 'flex',
+          display: { xs: 'flex', sm: 'flex' },
+          flexDirection: { xs: 'column', sm: 'row' },
           bgcolor: 'rgba(251, 252, 255, 1)',
           borderRadius: '20px',
           overflow: 'hidden',
-          gap: 3,
-          p: 3,
+          gap: { xs: 2, sm: 3 },
+          p: { xs: 2, sm: 3 },
           cursor: 'pointer',
           transition: 'transform 0.2s, box-shadow 0.2s',
           '&:hover': {
@@ -72,7 +95,14 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
       >
         {/* Показываем изображение только если оно есть */}
         {hasCoverImage && (
-          <Box sx={{ flexShrink: 0, width: '562px', height: '405px' }}>
+          <Box sx={{ 
+            flexShrink: 0, 
+            width: { xs: '100%', sm: '400px', md: '562px' }, 
+            height: { xs: '200px', sm: '280px', md: '405px' },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
             <img
               src={article.cover_image!}
               alt={article.title}
@@ -91,11 +121,22 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           </Box>
         )}
         
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          <Typography variant="caption" color="textSecondary">
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: { xs: 1, sm: 1.5 } }}>
+          <Typography 
+            variant="caption" 
+            color="textSecondary"
+            sx={{ fontSize: { xs: '11px', sm: '12px', md: '13px' } }}
+          >
             {formatDate(article.pub_time)}
           </Typography>
-          <Typography variant="h5" component="h3" sx={{ fontWeight: 600 }}>
+          <Typography 
+            variant="h5" 
+            component="h3" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: { xs: '16px', sm: '18px', md: '20px' }
+            }}
+          >
             {article.title}
           </Typography>
           <Typography variant="body2" color="textSecondary">
@@ -159,19 +200,24 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         cursor: 'pointer',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: 4,
+          boxShadow: { xs: 2, sm: 4, md: 6 },
         },
+        boxShadow: { xs: 1, sm: 2, md: 3 },
       }}
     >
       {/* Показываем изображение только если оно есть */}
       {hasCoverImage && (
         <CardMedia
           component="img"
-          height="217"
           image={article.cover_image!}
           alt={article.title}
           sx={{
             objectFit: 'cover',
+            height: {
+              xs: '160px',
+              sm: '200px',
+              md: '217px'
+            }
           }}
           onError={(e) => {
             // При ошибке загрузки скрываем компонент
@@ -180,17 +226,43 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         />
       )}
       
-      <CardContent sx={{ flex: 1, p: 2 }}>
-        <Typography variant="caption" color="textSecondary">
+      <CardContent sx={{ 
+        flex: 1, 
+        p: { xs: '12px', sm: '16px', md: '16px' },
+        display: 'flex',
+        flexDirection: 'column',
+        gap: { xs: 0.5, sm: 1, md: 1 },
+      }}>
+        <Typography 
+          variant="caption" 
+          color="textSecondary"
+          sx={{ fontSize: { xs: '11px', sm: '12px', md: '13px' } }}
+        >
           {formatDate(article.pub_time)}
         </Typography>
-        <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mt: 1, mb: 1 }}>
+        <Typography 
+          variant="h6" 
+          component="h3" 
+          sx={{ 
+            fontWeight: 600, 
+            mt: 0,
+            mb: 0,
+            fontSize: { xs: '14px', sm: '16px', md: '18px' }
+          }}
+        >
           {article.title}
         </Typography>
-        <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+        <Typography 
+          variant="body2" 
+          color="textSecondary" 
+          sx={{ 
+            mb: 1,
+            fontSize: { xs: '12px', sm: '13px', md: '14px' }
+          }}
+        >
           {truncateText(article.content, 100)}
         </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 0.5, sm: 1 }, mb: 1 }}>
           {article.categories.map(cat => (
             <Chip
               key={cat.id}

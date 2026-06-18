@@ -1,0 +1,142 @@
+// Feed Page - Responsive Styles
+
+// Desktop (1025px and above)
+@media (min-width: 1025px) {
+  .feed-page {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .feed-item {
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    img {
+      max-height: 400px;
+      margin: 12px 0;
+    }
+  }
+
+  .feed-image {
+    height: 300px;
+  }
+}
+
+// Tablet (769px - 1024px)
+@media (min-width: 769px) and (max-width: 1024px) {
+  .feed-page {
+    padding: 20px;
+  }
+
+  .feed-container {
+    grid-template-columns: 1fr;
+  }
+
+  .feed-item {
+    padding: 18px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+
+    h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Small Tablet & Large Mobile (481px - 768px)
+@media (min-width: 481px) and (max-width: 768px) {
+  .feed-page {
+    padding: 16px;
+  }
+
+  .feed-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .feed-item {
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    img {
+      height: 220px;
+    }
+  }
+}
+
+// Mobile (480px and below)
+@media (max-width: 480px) {
+  .feed-page {
+    padding: 12px;
+  }
+
+  .feed-container {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .feed-item {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    p {
+      font-size: 12px;
+      line-height: 1.4;
+      margin: 6px 0;
+    }
+
+    img {
+      height: 180px;
+      margin: 8px 0;
+    }
+  }
+
+  .feed-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+
+    button {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+  }
+}

@@ -13,7 +13,6 @@ import {
   Dialog,
   DialogContent,
   Avatar,
-  Grid,
 } from '@mui/material';
 import { Search, Business, Phone, Email, LocationOn, OpenInNew, Visibility } from '@mui/icons-material';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
@@ -199,90 +198,123 @@ const OrganizationsPage = () => {
                   borderRadius: '20px',
                   border: '1px solid rgba(201, 201, 201, 1)',
                   backgroundColor: 'rgba(248, 247, 255, 1)',
-                  padding: '10px',
+                  padding: { xs: '12px', sm: '16px' },
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: { xs: 'stretch', sm: 'center' }, 
+                  gap: { xs: 1.5, sm: 2 },
                 }}
               >
-                <Grid container spacing={2} direction="row" sx={{alignItems: "stretch"}}>
-                  <Grid size={{ xs: 12, md: 4 }}>
-                    <Box
-                      sx={{
-                        width: '100%',
-                        height: { xs: '200px', md: '100%' },
-                        minHeight: 200,
-                        backgroundColor: '#f0f0f0',
-                        backgroundImage: org.avatarUrl ? `url(${org.avatarUrl})` : 'none',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'text.secondary',
-                        borderRadius: '10px',
-                        border: '1px solid rgba(93, 75, 216, 1)',
-                      }}
+                <Box
+                  sx={{
+                    width: { xs: '100%', sm: '300px', md: '350px' },
+                    height: { xs: '200px', sm: '250px' },
+                    flexShrink: 0,  // ← не сжиматься
+                    backgroundColor: '#f0f0f0',
+                    backgroundImage: org.avatarUrl ? `url(${org.avatarUrl})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'text.secondary',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(93, 75, 216, 1)',
+                  }}
+                >
+                  {!org.avatarUrl && <Business sx={{ fontSize: 60, color: 'action.disabled' }} />}
+                </Box>
+
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '8px', 
+                  flex: 1,           
+                  minWidth: 0,      
+                  width: '100%',     
+                  overflow: 'hidden',
+                }}> 
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 400, 
+                      fontSize: '16px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap', 
+                    }}
+                  >
+                    Название: {org.name}
+                  </Typography>
+
+                  <Typography 
+                    sx={{ 
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2, 
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      wordBreak: 'break-word', 
+                    }}
+                  >
+                    Описание: {org.description || 'Нет описания'}
+                  </Typography>
+                  
+                  <Stack spacing={0.5} sx={{ overflow: 'hidden' }}>
+                    <Typography 
+                      noWrap 
+                      sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
                     >
-                      {!org.avatarUrl && <Business sx={{ fontSize: 60, color: 'action.disabled' }} />}
-                    </Box>
-                  </Grid>
+                      Эл.почта: {org.email || 'Не определена'}
+                    </Typography>
 
-                  <Grid size={{ xs: 12, md: 8 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: 0 }}> 
-                      <Typography variant="h6" sx={{ fontWeight: 400, fontSize: '16px' }}>
-                        Название: {org.name}
-                      </Typography>
+                    <Typography 
+                      noWrap 
+                      sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+                    >
+                      Телефон: {org.phone || 'Не определен'}
+                    </Typography>
 
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', overflow: 'hidden' }}>
                       <Typography 
-                        sx={{ 
-                          display: '-webkit-box',
-                          WebkitLineClamp: 1,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
+                        noWrap 
+                        sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}
                       >
-                        Описание: {org.description || 'Нет описания'}
+                        Локация: {org.locationText || 'Не определена'}
                       </Typography>
-                      
-
-                      <Stack spacing={0.5}>
-                        <Typography noWrap>Эл.почта: {org.email || 'Не определена'}</Typography>
-  
-                        <Typography noWrap>Телефон: {org.phone || 'Не определен'}</Typography>
-
-                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                          <Typography noWrap sx={{  }}>Локация: {org.locationText || 'Не определена'}</Typography>
-                          {org.locationLat != null && org.locationLng != null && (
-                            <Button
-                              size="small"
-                              variant="text"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenMap(org.locationLat, org.locationLng);
-                              }}
-                              sx={{ minWidth: 'auto' }}
-                            >
-                              <OpenInNew />
-                            </Button>
-                          )}
-                        </Box>
-                      
-                      </Stack>
-
-                      <Button
-                        variant="contained"
-                        size="small"
-                        startIcon={<Visibility />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewProfile(org.id);
-                        }}
-                        sx={{ alignSelf: 'flex-end', fontSize: '0.75rem', py: 0.5 }}
-                      >
-                        Открыть профиль
-                      </Button>
+                      {org.locationLat != null && org.locationLng != null && (
+                        <Button
+                          size="small"
+                          variant="text"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenMap(org.locationLat, org.locationLng);
+                          }}
+                          sx={{ minWidth: 'auto', flexShrink: 0 }}
+                        >
+                          <OpenInNew />
+                        </Button>
+                      )}
                     </Box>
-                  </Grid>
-                </Grid>
+                  </Stack>
+
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<Visibility />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewProfile(org.id);
+                    }}
+                    sx={{ 
+                      alignSelf: { xs: 'stretch', sm: 'flex-end' },  // ← на всю ширину на xs
+                      fontSize: '0.75rem', 
+                      py: 0.5 
+                    }}
+                  >
+                    Открыть профиль
+                  </Button>
+                </Box>    
               </Card>
             ))}
 

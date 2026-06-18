@@ -56,47 +56,83 @@ const FilterModal: React.FC<FilterModalProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      sx={{
-        '& .MuiDialog-paper': {
-          borderRadius: '20px',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: { xs: '12px', sm: '16px', md: '20px' },
+            m: { xs: 1, sm: 2 },
+          }
         }
+        
       }}
     >
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        fontSize: { xs: '16px', sm: '18px', md: '20px' },
+        p: { xs: 1.5, sm: 2 }
+      }}>
         Фильтры
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
+        <IconButton 
+          onClick={onClose} 
+          size="small"
+          sx={{ minWidth: 'auto' }}
+        >
+          <CloseIcon sx={{ fontSize: { xs: '18px', sm: '20px', md: '24px' } }} />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <FormControl fullWidth>
-            <InputLabel>Категория</InputLabel>
+      <DialogContent dividers sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: { xs: 2, sm: 2.5, md: 3 }
+        }}>
+          <FormControl fullWidth size="small">
+            <InputLabel sx={{ fontSize: { xs: '12px', sm: '13px', md: '14px' } }}>
+              Категория
+            </InputLabel>
             <Select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               label="Категория"
+              sx={{ fontSize: { xs: '13px', sm: '14px', md: '16px' } }}
             >
-              <MenuItem value="">Все категории</MenuItem>
+              <MenuItem value="" sx={{ fontSize: { xs: '12px', sm: '13px', md: '14px' } }}>
+                Все категории
+              </MenuItem>
               {categories.map((category) => (
-                <MenuItem key={category.id} value={category.id}>
+                <MenuItem 
+                  key={category.id} 
+                  value={category.id}
+                  sx={{ fontSize: { xs: '12px', sm: '13px', md: '14px' } }}
+                >
                   {category.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          <FormControl fullWidth>
-            <InputLabel>Тег</InputLabel>
+          <FormControl fullWidth size="small">
+            <InputLabel sx={{ fontSize: { xs: '12px', sm: '13px', md: '14px' } }}>
+              Тег
+            </InputLabel>
             <Select
               value={selectedTag}
               onChange={(e) => setSelectedTag(e.target.value)}
               label="Тег"
+              sx={{ fontSize: { xs: '13px', sm: '14px', md: '16px' } }}
             >
-              <MenuItem value="">Все теги</MenuItem>
+              <MenuItem value="" sx={{ fontSize: { xs: '12px', sm: '13px', md: '14px' } }}>
+                Все теги
+              </MenuItem>
               {tags.map((tag) => (
-                <MenuItem key={tag.id} value={tag.id}>
+                <MenuItem 
+                  key={tag.id} 
+                  value={tag.id}
+                  sx={{ fontSize: { xs: '12px', sm: '13px', md: '14px' } }}
+                >
                   {tag.name}
                 </MenuItem>
               ))}
