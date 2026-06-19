@@ -1,3 +1,4 @@
+// pages/Chat/Chat.tsx
 import { Box, Alert, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -14,54 +15,76 @@ export default function Chat() {
   const [searchParams] = useSearchParams()
   const { createChat, loadChats, chooseChat, chats, currentChat, error, clearError } = useChatPresenter()
   const initRef = useRef(false)
+  const creatingChatRef = useRef(false)
   
   // State for mobile view toggle
   const [showChatList, setShowChatList] = useState(true)
 
-  // Load chats on mount - only once
+  // Load chats on mount - только один раз
   useEffect(() => {
     if (!initRef.current) {
       initRef.current = true
+      console.log('Loading chats on mount...')
       loadChats()
     }
   }, [loadChats])
 
-  // Initialize chat with userId parameter - when chats are loaded
+  // Initialize chat with userId parameter
   useEffect(() => {
     const userId = searchParams.get('userId')
     
-    if (!userId || !user || !chats.length) {
+    if (!userId || !user || creatingChatRef.current) {
       return
     }
 
+    // Проверяем, есть ли уже чат в списке
+    const existingChat = chats.find((chat) => {
+      return (chat.user_1_id === userId && chat.user_2_id === user.id) ||
+             (chat.user_1_id === user.id && chat.user_2_id === userId)
+    })
+
+    if (existingChat) {
+      console.log('Found existing chat:', existingChat.id)
+      chooseChat(existingChat)
+      setShowChatList(false)
+      return
+    }
+
+    // Если чата нет в списке, но у нас уже есть currentChat с этим пользователем
+    if (currentChat) {
+      const isSameChat = (currentChat.user_1_id === userId && currentChat.user_2_id === user.id) ||
+                         (currentChat.user_1_id === user.id && currentChat.user_2_id === userId)
+      if (isSameChat) {
+        setShowChatList(false)
+        return
+      }
+    }
+
+    // Создаем новый чат
     const initializeChat = async () => {
+      creatingChatRef.current = true
       try {
-        const existingChat = chats.find((chat) => {
-          return (chat.user_1_id === userId && chat.user_2_id === user.id) ||
-                 (chat.user_1_id === user.id && chat.user_2_id === userId)
-        })
-
-        if (existingChat) {
-          chooseChat(existingChat)
-          setShowChatList(false)
-          return
-        }
-
-        // Chat not found in list, create new one
+        console.log('Creating new chat with user:', userId)
         const result = await createChat({ user_id: userId })
         
         if (result.success && result.data) {
-          chooseChat(result.data)
+          console.log('Chat created successfully:', result.data.id)
           setShowChatList(false)
+        } else {
+          console.error('Failed to create chat:', result.error)
+          await loadChats()
         }
       } catch (err) {
         console.error('Error during chat initialization:', err)
+      } finally {
+        creatingChatRef.current = false
       }
     }
 
     initializeChat()
-  }, [searchParams, user, chats, createChat, chooseChat])
+  }, [searchParams, user, chats, currentChat, createChat, chooseChat, loadChats])
 
+  // Обновляем видимость при выборе чата
   useEffect(() => {
     if (currentChat) {
       setShowChatList(false)

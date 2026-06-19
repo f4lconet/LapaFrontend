@@ -12,8 +12,13 @@ export const ChatList = ({ onChatSelect }: ChatListProps) => {
   const { chats, currentChat, isLoading, error, chooseChat, clearError } = useChatPresenter()
   const { user } = useAuthStore()
 
+  // Удаляем дубликаты по id
+  const uniqueChats = Array.from(
+    new Map(chats.map(chat => [chat.id, chat])).values()
+  )
+
   const getSortedChats = () => {
-    return [...chats].sort((a, b) => {
+    return [...uniqueChats].sort((a, b) => {
       const timeA = new Date(a.last_message_at).getTime()
       const timeB = new Date(b.last_message_at).getTime()
       return timeB - timeA
@@ -27,7 +32,7 @@ export const ChatList = ({ onChatSelect }: ChatListProps) => {
   const getLastMessagePreview = (chat: Chat) => {
     if (!chat.last_message) return 'Сообщения отсутствуют'
     const isOwn = chat.last_message.sender_id === user?.id
-    const prefix = isOwn ? 'You: ' : ''
+    const prefix = isOwn ? 'Вы: ' : ''
     return prefix + (chat.last_message.content.length > 50
       ? chat.last_message.content.substring(0, 50) + '...'
       : chat.last_message.content)

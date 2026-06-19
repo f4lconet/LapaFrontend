@@ -13,12 +13,12 @@ interface ChatStore {
   chats: Chat[]
   currentChat: Chat | null
   messages: ChatMessage[]
-  isLoadingChats: boolean
-  isLoadingMessages: boolean
-  isLoadingCreate: boolean
-  isLoadingJoin: boolean
-  isLoadingSendMessage: boolean
-  isLoadingDelete: boolean
+  isLoadingChats: boolean 
+  isLoadingMessages: boolean  
+  isLoadingCreate: boolean    
+  isLoadingJoin: boolean     
+  isLoadingSend: boolean     
+  isLoadingDelete: boolean  
   isConnected: boolean
   error: string | null
   total: number
@@ -52,7 +52,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   isLoadingMessages: false,
   isLoadingCreate: false,
   isLoadingJoin: false,
-  isLoadingSendMessage: false,
+  isLoadingSend: false,
   isLoadingDelete: false,
   isConnected: false,
   error: null,
@@ -95,12 +95,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({ isLoadingCreate: true, error: null })
     try {
       const chat = await chatService.createChat(data)
-      // Add new chat to list without re-fetching everything
-      const currentChats = get().chats
-      const alreadyExists = currentChats.some(c => c.id === chat.id)
-      if (!alreadyExists) {
-        set({ chats: [chat, ...currentChats], total: get().total + 1 })
-      }
+      // Refresh chats list
+      await get().fetchChats()
       set({ isLoadingCreate: false })
       return chat
     } catch (error) {
@@ -131,22 +127,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     try {
       console.log('Joining chat:', chatId)
       
-      // Подключаемся к WebSocket если еще не подключены
       const token = localStorage.getItem('accessToken')
       if (!webSocketService.isConnected() && token) {
         console.log('WebSocket not connected, connecting...')
         await webSocketService.connect(token)
         set({ isConnected: true })
         console.log('✅ WebSocket connected successfully')
-      } else {
-        console.log('WebSocket already connected:', webSocketService.isConnected())
       }
 
-      // Load message history first
       console.log('Loading message history...')
       await get().fetchMessages(chatId)
 
-      // Store callback reference for cleanup
       const messageCallback = (message: ChatMessage) => {
         console.log('📨 New message received via WebSocket:', message)
         set((state) => ({
@@ -154,7 +145,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         }))
       }
 
-      // Сохраняем callback в store для возможности отписки
       set({ 
         _currentChatId: chatId,
         _messageCallback: messageCallback,
@@ -184,35 +174,26 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         _messageCallback: null 
       })
     }
-    
-    // Не отключаем WebSocket полностью, чтобы другие часты могли использовать
-    // Если нужно отключить - раскомментируйте:
-    // if (webSocketService.isConnected()) {
-    //   webSocketService.disconnect()
-    //   set({ isConnected: false })
-    // }
   },
 
   // Send message via WebSocket
   sendMessage: async (chatId: string, data: CreateMessageRequest) => {
-    set({ isLoadingSendMessage: true, error: null })
+    set({ isLoadingSend: true, error: null })
     try {
-      // Пробуем отправить через WebSocket
       if (webSocketService.isConnected()) {
         console.log('Sending message via WebSocket')
         chatService.sendMessage(chatId, data)
       } else {
-        // Fallback на HTTP
         console.log('WebSocket not connected, sending via HTTP')
         const message = await chatService.sendMessageViaHttp(chatId, data)
         set((state) => ({
           messages: [...state.messages, message],
         }))
       }
-      set({ isLoadingSendMessage: false })
+      set({ isLoadingSend: false })
     } catch (error) {
       console.error('Failed to send message:', error)
-      set({ error: error instanceof Error ? error.message : 'Failed to send message', isLoadingSendMessage: false })
+      set({ error: error instanceof Error ? error.message : 'Failed to send message', isLoadingSend: false })
     }
   },
 
@@ -221,11 +202,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({ isLoadingDelete: true, error: null })
     try {
       await chatService.deleteChat(chatId)
-      // Remove from list without re-fetching
-      const updatedChats = get().chats.filter(c => c.id !== chatId)
-      set({ chats: updatedChats, total: Math.max(0, get().total - 1) })
-      // Clear current chat if it was the deleted one
-      if (get().currentChat?.id === chatId) {
+      await get().fetchChats()
+      const { currentChat } = get()
+      if (currentChat?.id === chatId) {
         set({ currentChat: null, messages: [] })
       }
       set({ isLoadingDelete: false })
@@ -262,7 +241,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       isLoadingMessages: false,
       isLoadingCreate: false,
       isLoadingJoin: false,
-      isLoadingSendMessage: false,
+      isLoadingSend: false,
       isLoadingDelete: false,
       isConnected: false,
       error: null,

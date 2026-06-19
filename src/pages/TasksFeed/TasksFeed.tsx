@@ -61,7 +61,8 @@ const TasksFeedPage = () => {
 
   // Filter tasks based on search and filters
   useEffect(() => {
-    let filtered = tasks;
+    // Сначала исключаем завершенные задачи
+    let filtered = tasks.filter((task) => task.status !== 'completed');
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -82,7 +83,8 @@ const TasksFeedPage = () => {
 
   // Filter recommended tasks
   useEffect(() => {
-    let filtered = recommendedTasks;
+    // Сначала исключаем завершенные задачи
+    let filtered = recommendedTasks.filter((task) => task.status !== 'completed');
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -254,7 +256,6 @@ const TasksFeedPage = () => {
                 p: 2,
               }
             }
-            
           }}
         >
           <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>

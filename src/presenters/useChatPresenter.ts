@@ -10,6 +10,8 @@ export const useChatPresenter = () => {
     isLoadingChats,
     isLoadingMessages,
     isLoadingCreate,
+    isLoadingJoin,
+    isLoadingSend,
     isLoadingDelete,
     isConnected,
     error,
@@ -27,12 +29,12 @@ export const useChatPresenter = () => {
     clearError,
   } = useChatStore()
 
-  // Loading state for chat list only (not messages)
+  // Общий флаг загрузки для списка чатов
   const isLoading = isLoadingChats || isLoadingCreate || isLoadingDelete
-  // Loading state for messages area
-  const isLoadingChatMessages = isLoadingMessages
+  
+  // Флаг загрузки для сообщений
+  const isLoadingMessagesState = isLoadingMessages || isLoadingJoin || isLoadingSend
 
-  // Load all chats
   const loadChats = useCallback(
     async (limit?: number, offset?: number) => {
       await fetchChats(limit, offset)
@@ -40,7 +42,6 @@ export const useChatPresenter = () => {
     [fetchChats]
   )
 
-  // Load specific chat
   const loadChat = useCallback(
     async (chatId: string) => {
       await fetchChatById(chatId)
@@ -48,7 +49,6 @@ export const useChatPresenter = () => {
     [fetchChatById]
   )
 
-  // Create new chat
   const createChat = useCallback(
     async (data: CreateChatRequest) => {
       try {
@@ -64,7 +64,6 @@ export const useChatPresenter = () => {
     [storeCreateChat]
   )
 
-  // Join chat room and listen for messages (WebSocket)
   const connectToChat = useCallback(
     async (chatId: string) => {
       await joinChat(chatId)
@@ -72,12 +71,10 @@ export const useChatPresenter = () => {
     [joinChat]
   )
 
-  // Leave chat room (WebSocket)
   const disconnectFromChat = useCallback(async () => {
     await leaveChat()
   }, [leaveChat])
 
-  // Send message via WebSocket
   const sendMessage = useCallback(
     async (chatId: string, data: CreateMessageRequest) => {
       try {
@@ -90,7 +87,6 @@ export const useChatPresenter = () => {
     [storeSendMessage]
   )
 
-  // Delete chat
   const deleteChat = useCallback(
     async (chatId: string) => {
       try {
@@ -103,7 +99,6 @@ export const useChatPresenter = () => {
     [storeDeleteChat]
   )
 
-  // Choose chat from list
   const chooseChat = useCallback(
     (chat: Chat) => {
       selectChat(chat)
@@ -111,7 +106,6 @@ export const useChatPresenter = () => {
     [selectChat]
   )
 
-  // Clear current chat
   const clearCurrentChat = useCallback(() => {
     setCurrentChat(null)
   }, [setCurrentChat])
@@ -121,8 +115,8 @@ export const useChatPresenter = () => {
     chats,
     currentChat,
     messages,
-    isLoading,
-    isLoadingChatMessages,
+    isLoading,                    // только для списка чатов
+    isLoadingMessagesState,       // для сообщений
     isConnected,
     error,
     total,

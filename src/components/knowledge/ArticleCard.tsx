@@ -191,10 +191,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     <Card
       onClick={handleCardClick}
       sx={{
+        width: { xs: '100%' , sm: '400px'},
+        height: {xs: '540px', sm: '560px'},
         borderRadius: '20px',
         overflow: 'hidden',
         transition: 'transform 0.3s ease',
-        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         cursor: 'pointer',
@@ -203,6 +204,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           boxShadow: { xs: 2, sm: 4, md: 6 },
         },
         boxShadow: { xs: 1, sm: 2, md: 3 },
+        p: 2
       }}
     >
       {/* Показываем изображение только если оно есть */}
@@ -217,7 +219,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
               xs: '160px',
               sm: '200px',
               md: '217px'
-            }
+            },
+            border: '1px solid rgba(82, 66, 186, 1)',
+            borderRadius: '10px',
           }}
           onError={(e) => {
             // При ошибке загрузки скрываем компонент

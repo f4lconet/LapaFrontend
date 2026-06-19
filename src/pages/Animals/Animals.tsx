@@ -108,11 +108,14 @@ const AnimalsPage = () => {
             }}
           />
 
-          <FormControl sx={{ maxWidth: '160px', width: '100%' }}>
-            <InputLabel>Тип животного</InputLabel>
+          <FormControl sx={{ maxWidth: '160px', width: '100%'}}>
+            <InputLabel>
+              Тип животного</InputLabel>
             <Select
+              sx={{
+                height: '80px', 
+              }}
               value={selectedType}
-              label="Тип животного"
               onChange={(e) => setSelectedType(e.target.value as number | '')}
             >
               <MenuItem value="">Все</MenuItem>

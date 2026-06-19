@@ -10,11 +10,23 @@ interface ChatMessagesProps {
   currentUserId?: string
 }
 
+// Функция перевода ролей
+const translateRole = (role: string): string => {
+  const roleMap: Record<string, string> = {
+    'organization': 'Организация',
+    'curator': 'Куратор',
+    'volunteer': 'Волонтер',
+    'admin': 'Администратор',
+    'user': 'Пользователь',
+  }
+  return roleMap[role?.toLowerCase()] || role || 'Пользователь'
+}
+
 export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
-  const { currentChat, messages, isLoadingChatMessages, error, connectToChat, disconnectFromChat, sendMessage, clearError } = useChatPresenter()
+  const { currentChat, messages, isLoadingMessagesState, error, connectToChat, disconnectFromChat, sendMessage, clearError } = useChatPresenter()
   const navigate = useNavigate()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [messageText, setMessageText] = useState('')  // Используем state вместо ref
+  const [messageText, setMessageText] = useState('')
   const [isSending, setIsSending] = useState(false)
 
   // Get the other user in the chat
@@ -48,7 +60,6 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
       isSending
     })
 
-    // Проверяем все условия
     if (!currentChat?.id) {
       console.error('Cannot send message: no chat selected')
       return
@@ -69,7 +80,7 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
       setIsSending(true)
       console.log('Sending message:', content)
       await sendMessage(currentChat.id, { content })
-      setMessageText('') // Очищаем поле после отправки
+      setMessageText('')
       console.log('Message sent successfully')
     } catch (err) {
       console.error('Error sending message:', err)
@@ -122,7 +133,7 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
       flexDirection: 'column', 
       height: '100%',
       width: '100%',
-      maxHeight: { xs: '400px', sm: '500px', md: '700px' },  // ← как у ChatList
+      maxHeight: { xs: '400px', sm: '500px', md: '700px' },
       borderRadius: { xs: '12px', sm: '16px', md: '20px' },
       backgroundColor: 'rgba(248, 247, 255, 1)',
       border: '1px solid black'
@@ -167,7 +178,7 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
                 fontSize: { xs: '11px', sm: '12px', md: '13px' }
               }}
             >
-              {otherUser?.role}
+              {translateRole(otherUser?.role || '')}  {/* ← Перевод роли */}
             </Typography>
           </Box>
         </Box>
@@ -197,7 +208,7 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
           maxHeight: { xs: '350px', sm: '450px', md: '500px' }
         }}
       >
-        {isLoadingChatMessages && messages.length === 0 ? (
+        {isLoadingMessagesState && messages.length === 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <CircularProgress />
           </Box>
