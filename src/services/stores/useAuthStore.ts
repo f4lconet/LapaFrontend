@@ -9,6 +9,7 @@ import type {
   User
 } from '../../models/user.model'
 import { webSocketService } from '../api/websocket.service'
+import { useUserStore } from './useUserStore'
 
 interface AuthStore extends AuthState {
   // Actions
@@ -141,6 +142,11 @@ export const useAuthStore = create<AuthStore>()(
 
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
+        
+        // Сбрасываем данные пользователя из userStore чтобы при следующем
+        // логине не было стейла от предыдущего аккаунта
+        useUserStore.getState().resetStore()
+        
         set({
           user: null,
           isAuthenticated: false,

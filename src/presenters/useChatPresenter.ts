@@ -7,7 +7,10 @@ export const useChatPresenter = () => {
     chats,
     currentChat,
     messages,
-    isLoading,
+    isLoadingChats,
+    isLoadingMessages,
+    isLoadingCreate,
+    isLoadingDelete,
     isConnected,
     error,
     total,
@@ -23,6 +26,11 @@ export const useChatPresenter = () => {
     setCurrentChat,
     clearError,
   } = useChatStore()
+
+  // Loading state for chat list only (not messages)
+  const isLoading = isLoadingChats || isLoadingCreate || isLoadingDelete
+  // Loading state for messages area
+  const isLoadingChatMessages = isLoadingMessages
 
   // Load all chats
   const loadChats = useCallback(
@@ -114,6 +122,7 @@ export const useChatPresenter = () => {
     currentChat,
     messages,
     isLoading,
+    isLoadingChatMessages,
     isConnected,
     error,
     total,

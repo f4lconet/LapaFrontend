@@ -1,4 +1,4 @@
-import { Box, Alert, CircularProgress, Typography } from '@mui/material'
+import { Box, Alert, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -12,28 +12,27 @@ import { BurgerMenu } from '../../components/navigation/BurgerMenu'
 export default function Chat() {
   const { user } = useAuthStore()
   const [searchParams] = useSearchParams()
-  const { createChat, loadChats, chooseChat, chats, currentChat, error, clearError, isLoading } = useChatPresenter()
+  const { createChat, loadChats, chooseChat, chats, currentChat, error, clearError } = useChatPresenter()
   const initRef = useRef(false)
   
   // State for mobile view toggle
   const [showChatList, setShowChatList] = useState(true)
 
-  // Load chats on mount
+  // Load chats on mount - only once
   useEffect(() => {
-    if (!initRef.current && chats.length === 0) {
+    if (!initRef.current) {
+      initRef.current = true
       loadChats()
     }
-  }, [chats.length, loadChats])
+  }, [loadChats])
 
-  // Initialize chat with userId parameter
+  // Initialize chat with userId parameter - when chats are loaded
   useEffect(() => {
     const userId = searchParams.get('userId')
     
-    if (!userId || !user || currentChat || initRef.current) {
+    if (!userId || !user || !chats.length) {
       return
     }
-
-    initRef.current = true
 
     const initializeChat = async () => {
       try {
@@ -48,26 +47,12 @@ export default function Chat() {
           return
         }
 
-        await loadChats()
-
-        const reloadedChat = chats.find((chat) => {
-          return (chat.user_1_id === userId && chat.user_2_id === user.id) ||
-                 (chat.user_1_id === user.id && chat.user_2_id === userId)
-        })
-
-        if (reloadedChat) {
-          chooseChat(reloadedChat)
-          setShowChatList(false)
-          return
-        }
-
+        // Chat not found in list, create new one
         const result = await createChat({ user_id: userId })
         
         if (result.success && result.data) {
           chooseChat(result.data)
           setShowChatList(false)
-        } else {
-          await loadChats()
         }
       } catch (err) {
         console.error('Error during chat initialization:', err)
@@ -75,7 +60,7 @@ export default function Chat() {
     }
 
     initializeChat()
-  }, [searchParams, user, chats, currentChat, createChat, loadChats, chooseChat])
+  }, [searchParams, user, chats, createChat, chooseChat])
 
   useEffect(() => {
     if (currentChat) {
@@ -101,12 +86,6 @@ export default function Chat() {
         <Alert severity="error" onClose={clearError} sx={{ mb: 2, mx: { xs: 1, sm: 2, md: 3 } }}>
           Ошибка при работе с чатом: {error}
         </Alert>
-      )}
-
-      {isLoading && chats.length === 0 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3, mb: 2 }}>
-          <CircularProgress size={24} />
-        </Box>
       )}
 
       {!showChatList && currentChat && (

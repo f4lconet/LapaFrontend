@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Box, Alert, Container } from '@mui/material';
+import { Box, Alert, Container, CircularProgress } from '@mui/material';
 import { useAuthPresenter } from '../../presenters/useAuthPresenter';
 import { useUserPresenter } from '../../presenters/useUserPresenter';
 import { ProfileInfo } from '../../components/profile/ProfileInfo';
@@ -13,6 +13,7 @@ const Profile = () => {
   const {
     user,
     isLoading,
+    isLoadingProfile,
     error,
     isEditing,
     isOwnProfile,
@@ -34,7 +35,7 @@ const Profile = () => {
     if (user && !isOwnProfile && user.role === 'volunteer') {
       fetchReviewStats(user.id);
     }
-  }, [user, isOwnProfile, fetchReviewStats]);
+  }, [user?.id, isOwnProfile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = async () => {
     await logout();
@@ -47,21 +48,28 @@ const Profile = () => {
     }
   };
 
-  if (isLoading && !user) {
+  // Показываем спиннер только пока идёт загрузка профиля и user ещё не получен
+  if (isLoadingProfile && !user) {
     return (
       <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Box sx={{ textAlign: 'center', py: 4 }}>Загрузка профиля...</Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
       </Container>
     );
   }
 
-  if (error || !user) {
+  // Показываем ошибку только если загрузка завершена и user так и не получен
+  if (!isLoadingProfile && (error || !user)) {
     return (
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Alert severity="error">{error || 'Ошибка загрузки профиля'}</Alert>
       </Container>
     );
   }
+
+  // Пока user ещё null но загрузка идёт — не рендерим ничего лишнего
+  if (!user) return null;
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>

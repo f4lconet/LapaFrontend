@@ -16,12 +16,14 @@ import { BurgerMenu } from '../../components/navigation/BurgerMenu';
 import { TaskCard } from '../../components/tasks/TaskCard';
 import { AddTaskDialog } from '../../components/tasks/AddTaskDialog';
 import { useTaskStore } from '../../services/stores/useTaskStore';
-import { useUserPresenter } from '../../presenters/useUserPresenter';
+import { useAuthStore } from '../../services/stores/useAuthStore';
+import { useUserStore } from '../../services/stores/useUserStore';
 import type { CreateTaskRequest, UpdateTaskRequest } from '../../models/task.model';
 
 const MyTasksPage = () => {
   const navigate = useNavigate();
-  const { user } = useUserPresenter();
+  const { user } = useAuthStore();
+  const { myAnimals } = useUserStore();
   const {
     tasks,
     archivedTasks,
@@ -39,7 +41,6 @@ const MyTasksPage = () => {
     clearError,
   } = useTaskStore();
 
-  const { myAnimals } = useUserPresenter();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   

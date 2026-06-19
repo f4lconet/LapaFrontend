@@ -11,7 +11,9 @@ export const useUserPresenter = () => {
 
   const {
     user,
-    isLoading,
+    isLoadingProfile,
+    isLoadingDetails,
+    isLoadingStats,
     error,
     isEditing,
     skills,
@@ -46,7 +48,7 @@ export const useUserPresenter = () => {
   // Определяем, свой ли это профиль
   const isOwnProfile = !userId || currentUser?.id === userId;
 
-  // Загрузка профиля
+  // Загрузка профиля — только при реальной смене userId
   useEffect(() => {
     if (isOwnProfile) {
       getProfile();
@@ -54,21 +56,26 @@ export const useUserPresenter = () => {
       fetchPublicProfile(userId);
     }
     
-    // Очистка при размонтировании
+    // Очистка при размонтировании (только для чужого профиля)
     return () => {
       if (!isOwnProfile) {
         clearPublicData();
         clearVolunteerData();
       }
     };
-  }, [userId]);
+  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Загрузка дополнительных данных после получения пользователя
+  // Загрузка дополнительных данных после получения пользователя.
+  // Важно: проверяем isLoadingProfile чтобы не запустить детали
+  // по стейлому user пока новый ещё грузится.
   useEffect(() => {
-    if (!user) return;
+    if (!user || isLoadingProfile) return;
+
+    // Дополнительная защита: для своего профиля убеждаемся что user
+    // в сторе — это действительно мы, а не чужой пользователь
+    if (isOwnProfile && currentUser && user.id !== currentUser.id) return;
 
     if (isOwnProfile) {
-      // Свой профиль - используем личные эндпоинты
       if (user.role === 'volunteer') {
         fetchVolunteerData();
         fetchVolunteerStats();
@@ -76,25 +83,27 @@ export const useUserPresenter = () => {
         fetchMyAnimals();
       }
     } else {
-      // Чужой профиль - используем публичные эндпоинты
       if (user.role === 'volunteer' && userId) {
         fetchPublicCompetencies(userId);
       } else if ((user.role === 'curator' || user.role === 'organization') && userId) {
         fetchPublicAnimals(userId);
       }
     }
-  }, [user, isOwnProfile, userId]);
+  }, [user?.id, isLoadingProfile, isOwnProfile, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Определяем, какие данные показывать
   const displayCompetencies = isOwnProfile ? competencies : publicCompetencies;
   const displayAnimals = isOwnProfile ? myAnimals : publicAnimals;
 
-  // Комбинируем статистику: свои задачи + данные из отзывов
+  // Комбинируем статистику
   const combinedVolunteerStats = {
     completedTasksCount: isOwnProfile 
-      ? (volunteerStats?.completedTasksCount ?? 0)  // Свой профиль — из fetchVolunteerStats
-      : (reviewStats?.tasks_count ?? 0)              // Чужой профиль — из reviewStats
+      ? (volunteerStats?.completedTasksCount ?? 0)
+      : (reviewStats?.tasks_count ?? 0)
   };
+
+  // Общий флаг загрузки для UI
+  const isLoading = isLoadingProfile || isLoadingDetails || isLoadingStats;
 
   const handleUpdateProfile = useCallback(async (data: UpdateProfileRequest) => {
     await updateProfile(data);
@@ -129,6 +138,7 @@ export const useUserPresenter = () => {
   return {
     user,
     isLoading,
+    isLoadingProfile,
     error,
     isEditing,
     isOwnProfile,

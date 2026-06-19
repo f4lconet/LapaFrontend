@@ -11,7 +11,7 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
-  const { currentChat, messages, isLoading, error, connectToChat, disconnectFromChat, sendMessage, clearError } = useChatPresenter()
+  const { currentChat, messages, isLoadingChatMessages, error, connectToChat, disconnectFromChat, sendMessage, clearError } = useChatPresenter()
   const navigate = useNavigate()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [messageText, setMessageText] = useState('')  // Используем state вместо ref
@@ -197,7 +197,7 @@ export const ChatMessages = ({ currentUserId }: ChatMessagesProps) => {
           maxHeight: { xs: '350px', sm: '450px', md: '500px' }
         }}
       >
-        {isLoading && messages.length === 0 ? (
+        {isLoadingChatMessages && messages.length === 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <CircularProgress />
           </Box>

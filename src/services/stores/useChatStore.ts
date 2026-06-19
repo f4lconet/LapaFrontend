@@ -13,7 +13,12 @@ interface ChatStore {
   chats: Chat[]
   currentChat: Chat | null
   messages: ChatMessage[]
-  isLoading: boolean
+  isLoadingChats: boolean
+  isLoadingMessages: boolean
+  isLoadingCreate: boolean
+  isLoadingJoin: boolean
+  isLoadingSendMessage: boolean
+  isLoadingDelete: boolean
   isConnected: boolean
   error: string | null
   total: number
@@ -43,80 +48,86 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   chats: [],
   currentChat: null,
   messages: [],
-  isLoading: false,
+  isLoadingChats: false,
+  isLoadingMessages: false,
+  isLoadingCreate: false,
+  isLoadingJoin: false,
+  isLoadingSendMessage: false,
+  isLoadingDelete: false,
   isConnected: false,
   error: null,
   total: 0,
   currentOffset: 0,
   messagesTotal: 0,
   messagesOffset: 0,
+  _currentChatId: null,
+  _messageCallback: null,
 
   // Fetch all chats (HTTP)
   fetchChats: async (limit: number = 50, offset: number = 0) => {
-    set({ isLoading: true, error: null })
+    set({ isLoadingChats: true, error: null })
     try {
       const response = await chatService.getChats(limit, offset)
       set({
         chats: response.items,
         total: response.total,
         currentOffset: offset,
+        isLoadingChats: false,
       })
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to fetch chats' })
-    } finally {
-      set({ isLoading: false })
+      set({ error: error instanceof Error ? error.message : 'Failed to fetch chats', isLoadingChats: false })
     }
   },
 
   // Fetch specific chat (HTTP)
   fetchChatById: async (chatId: string) => {
-    set({ isLoading: true, error: null })
+    set({ isLoadingMessages: true, error: null })
     try {
       const chat = await chatService.getChatById(chatId)
-      set({ currentChat: chat })
+      set({ currentChat: chat, isLoadingMessages: false })
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to fetch chat' })
-    } finally {
-      set({ isLoading: false })
+      set({ error: error instanceof Error ? error.message : 'Failed to fetch chat', isLoadingMessages: false })
     }
   },
 
   // Create new chat (HTTP)
   createChat: async (data: CreateChatRequest) => {
-    set({ isLoading: true, error: null })
+    set({ isLoadingCreate: true, error: null })
     try {
       const chat = await chatService.createChat(data)
-      // Refresh chats list
-      await get().fetchChats()
+      // Add new chat to list without re-fetching everything
+      const currentChats = get().chats
+      const alreadyExists = currentChats.some(c => c.id === chat.id)
+      if (!alreadyExists) {
+        set({ chats: [chat, ...currentChats], total: get().total + 1 })
+      }
+      set({ isLoadingCreate: false })
       return chat
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to create chat' })
+      set({ error: error instanceof Error ? error.message : 'Failed to create chat', isLoadingCreate: false })
       return null
-    } finally {
-      set({ isLoading: false })
     }
   },
 
   // Fetch message history (HTTP)
   fetchMessages: async (chatId: string, limit: number = 50, offset: number = 0) => {
-    set({ isLoading: true, error: null })
+    set({ isLoadingMessages: true, error: null })
     try {
       const response = await chatService.getMessages(chatId, limit, offset)
       set({
         messages: response.items,
         messagesTotal: response.total,
         messagesOffset: offset,
+        isLoadingMessages: false,
       })
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to fetch messages' })
-    } finally {
-      set({ isLoading: false })
+      set({ error: error instanceof Error ? error.message : 'Failed to fetch messages', isLoadingMessages: false })
     }
   },
 
   // Join chat room (WebSocket)
   joinChat: async (chatId: string) => {
-    set({ isLoading: true, error: null })
+    set({ isLoadingJoin: true, error: null })
     try {
       console.log('Joining chat:', chatId)
       
@@ -146,7 +157,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       // Сохраняем callback в store для возможности отписки
       set({ 
         _currentChatId: chatId,
-        _messageCallback: messageCallback 
+        _messageCallback: messageCallback,
+        isLoadingJoin: false,
       })
 
       console.log('Joining WebSocket chat room with event: chat_join')
@@ -155,9 +167,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'websocket error'
       console.error('❌ Error joining chat:', error)
-      set({ error: errorMessage, isConnected: false })
-    } finally {
-      set({ isLoading: false })
+      set({ error: errorMessage, isConnected: false, isLoadingJoin: false })
     }
   },
 
@@ -185,7 +195,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   // Send message via WebSocket
   sendMessage: async (chatId: string, data: CreateMessageRequest) => {
-    set({ isLoading: true, error: null })
+    set({ isLoadingSendMessage: true, error: null })
     try {
       // Пробуем отправить через WebSocket
       if (webSocketService.isConnected()) {
@@ -199,30 +209,28 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           messages: [...state.messages, message],
         }))
       }
+      set({ isLoadingSendMessage: false })
     } catch (error) {
       console.error('Failed to send message:', error)
-      set({ error: error instanceof Error ? error.message : 'Failed to send message' })
-    } finally {
-      set({ isLoading: false })
+      set({ error: error instanceof Error ? error.message : 'Failed to send message', isLoadingSendMessage: false })
     }
   },
 
   // Delete chat (HTTP)
   deleteChat: async (chatId: string) => {
-    set({ isLoading: true, error: null })
+    set({ isLoadingDelete: true, error: null })
     try {
       await chatService.deleteChat(chatId)
-      // Refresh chats list
-      await get().fetchChats()
+      // Remove from list without re-fetching
+      const updatedChats = get().chats.filter(c => c.id !== chatId)
+      set({ chats: updatedChats, total: Math.max(0, get().total - 1) })
       // Clear current chat if it was the deleted one
-      const { currentChat } = get()
-      if (currentChat?.id === chatId) {
+      if (get().currentChat?.id === chatId) {
         set({ currentChat: null, messages: [] })
       }
+      set({ isLoadingDelete: false })
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to delete chat' })
-    } finally {
-      set({ isLoading: false })
+      set({ error: error instanceof Error ? error.message : 'Failed to delete chat', isLoadingDelete: false })
     }
   },
 
@@ -250,7 +258,12 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       chats: [],
       currentChat: null,
       messages: [],
-      isLoading: false,
+      isLoadingChats: false,
+      isLoadingMessages: false,
+      isLoadingCreate: false,
+      isLoadingJoin: false,
+      isLoadingSendMessage: false,
+      isLoadingDelete: false,
       isConnected: false,
       error: null,
       total: 0,

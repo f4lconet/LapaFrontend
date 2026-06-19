@@ -22,7 +22,6 @@ import { AnimalCard } from '../../components/profile/AnimalCard';
 
 const AnimalsPage = () => {
   const [animals, setAnimals] = useState<Animal[]>([]);
-  const [filteredAnimals, setFilteredAnimals] = useState<Animal[]>([]);
   const [animalTypes, setAnimalTypes] = useState<AnimalType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,10 +32,6 @@ const AnimalsPage = () => {
     loadData();
   }, []);
 
-  useEffect(() => {
-    filterAnimals();
-  }, [searchTerm, selectedType, animals]);
-
   const loadData = async () => {
     setIsLoading(true);
     setError(null);
@@ -46,7 +41,6 @@ const AnimalsPage = () => {
         volunteerService.getAllAnimalTypes(),
       ]);
       setAnimals(animalsData);
-      setFilteredAnimals(animalsData);
       setAnimalTypes(typesData);
     } catch (err: any) {
       console.error('Error loading animals:', err);
@@ -56,22 +50,14 @@ const AnimalsPage = () => {
     }
   };
 
-  const filterAnimals = () => {
-    let filtered = [...animals];
-
-    if (searchTerm) {
-      filtered = filtered.filter(animal =>
-        animal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        animal.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (selectedType) {
-      filtered = filtered.filter(animal => animal.typeId === selectedType);
-    }
-
-    setFilteredAnimals(filtered);
-  };
+  // Фильтрация вычисляется на лету, без отдельного state
+  const filteredAnimals = animals.filter(animal => {
+    const matchesSearch = !searchTerm || 
+      animal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      animal.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = !selectedType || animal.typeId === selectedType;
+    return matchesSearch && matchesType;
+  });
 
   if (isLoading) {
     return (
@@ -98,15 +84,14 @@ const AnimalsPage = () => {
       </Box>
 
       <Box sx={{ mb: 4 }}>
-        <Box sx={{ textAlign: 'center',  mb: 5 }}>
+        <Box sx={{ textAlign: 'center', mb: 5 }}>
           <Typography variant="h4" component="h1">
             Животные
           </Typography>
         </Box>
 
         {/* Фильтры */}
-        
-        <Box sx={{display: 'flex', justifyContent: 'center', gap: 1, mb: 5 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mb: 5 }}>
           <TextField
             fullWidth
             placeholder="Поиск по имени или описанию..."
@@ -114,17 +99,16 @@ const AnimalsPage = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             slotProps={{
               input: {
-                  startAdornment: (
+                startAdornment: (
                   <InputAdornment position="start">
-                      <Search />
+                    <Search />
                   </InputAdornment>
-                  ),
-              }  
+                ),
+              }
             }}
           />
-        
-        
-          <FormControl sx={{maxWidth: '160px', width:'100%' }}>
+
+          <FormControl sx={{ maxWidth: '160px', width: '100%' }}>
             <InputLabel>Тип животного</InputLabel>
             <Select
               value={selectedType}
@@ -140,11 +124,8 @@ const AnimalsPage = () => {
             </Select>
           </FormControl>
         </Box>
-        
-          
-        
 
-        {/* Список животных - теперь в виде списка, а не сетки */}
+        {/* Список животных */}
         {filteredAnimals.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <Pets sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
@@ -156,10 +137,10 @@ const AnimalsPage = () => {
             </Typography>
           </Box>
         ) : (
-          <Grid container sx={{justifyContent: 'center', gap: 3}}>
+          <Grid container sx={{ justifyContent: 'center', gap: 3 }}>
             {filteredAnimals.map((animal) => (
-              <Grid sx={{xs: 12, sm: 6, md: 4}} key={animal.id}>
-                <AnimalCard 
+              <Grid sx={{ xs: 12, sm: 6, md: 4 }} key={animal.id}>
+                <AnimalCard
                   animal={animal}
                   isOwnProfile={false}
                   showCuratorButton={true}

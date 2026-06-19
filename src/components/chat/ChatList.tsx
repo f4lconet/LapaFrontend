@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Box, List, ListItem, ListItemButton, Avatar, Typography, CircularProgress, Alert, Divider, Card } from '@mui/material'
 import { useChatPresenter } from '../../presenters/useChatPresenter'
 import { useAuthStore } from '../../services/stores/useAuthStore'
@@ -10,12 +9,8 @@ interface ChatListProps {
 }
 
 export const ChatList = ({ onChatSelect }: ChatListProps) => {
-  const { chats, currentChat, isLoading, error, loadChats, chooseChat, clearError } = useChatPresenter()
+  const { chats, currentChat, isLoading, error, chooseChat, clearError } = useChatPresenter()
   const { user } = useAuthStore()
-
-  useEffect(() => {
-    loadChats()
-  }, [loadChats])
 
   const getSortedChats = () => {
     return [...chats].sort((a, b) => {

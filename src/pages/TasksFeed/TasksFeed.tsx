@@ -19,11 +19,11 @@ import { useNavigate } from 'react-router-dom';
 import { BurgerMenu } from '../../components/navigation/BurgerMenu';
 import { TaskCard } from '../../components/tasks/TaskCard';
 import { useTaskStore } from '../../services/stores/useTaskStore';
-import { useUserPresenter } from '../../presenters/useUserPresenter';
+import { useAuthStore } from '../../services/stores/useAuthStore';
 
 const TasksFeedPage = () => {
   const navigate = useNavigate();
-  const { user } = useUserPresenter();
+  const { user } = useAuthStore();
   const {
     tasks,
     recommendedTasks,
